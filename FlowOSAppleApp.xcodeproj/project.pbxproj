@@ -6,8 +6,59 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		8BB7B4972FA63176007CC3E0 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB7B4942FA63176007CC3E0 /* SettingsView.swift */; };
+		8BB7B4982FA63176007CC3E0 /* TimerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB7B4902FA63176007CC3E0 /* TimerViewModel.swift */; };
+		8BB7B4992FA63176007CC3E0 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB7B4932FA63176007CC3E0 /* MainTabView.swift */; };
+		8BB7B49A2FA63176007CC3E0 /* DataFolderManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB7B4812FA63176007CC3E0 /* DataFolderManager.swift */; };
+		8BB7B49B2FA63176007CC3E0 /* SettingsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB7B4842FA63176007CC3E0 /* SettingsRepository.swift */; };
+		8BB7B49C2FA63176007CC3E0 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB7B4922FA63176007CC3E0 /* HistoryView.swift */; };
+		8BB7B49D2FA63176007CC3E0 /* TimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB7B4952FA63176007CC3E0 /* TimerView.swift */; };
+		8BB7B49E2FA63176007CC3E0 /* WidgetDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB7B48C2FA63176007CC3E0 /* WidgetDataProvider.swift */; };
+		8BB7B49F2FA63176007CC3E0 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB7B48B2FA63176007CC3E0 /* NotificationService.swift */; };
+		8BB7B4A02FA63176007CC3E0 /* JSONFileStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB7B4822FA63176007CC3E0 /* JSONFileStore.swift */; };
+		8BB7B4A12FA63176007CC3E0 /* TimerEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB7B4872FA63176007CC3E0 /* TimerEngine.swift */; };
+		8BB7B4A22FA63176007CC3E0 /* SessionRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB7B4832FA63176007CC3E0 /* SessionRepository.swift */; };
+		8BB7B4A32FA63176007CC3E0 /* HistoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB7B48E2FA63176007CC3E0 /* HistoryViewModel.swift */; };
+		8BB7B4A42FA63176007CC3E0 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB7B48F2FA63176007CC3E0 /* SettingsViewModel.swift */; };
+		8BB7B4A52FA63176007CC3E0 /* TimerRules.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB7B4882FA63176007CC3E0 /* TimerRules.swift */; };
+		8BB7B4A62FA63176007CC3E0 /* ActiveTimerRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB7B4802FA63176007CC3E0 /* ActiveTimerRepository.swift */; };
+		8BB7B4A72FA63176007CC3E0 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB7B4862FA63176007CC3E0 /* Models.swift */; };
+		8BB7B4A82FA63176007CC3E0 /* AppCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB7B48A2FA63176007CC3E0 /* AppCoordinator.swift */; };
+		8BB7B4AA2FA65D0B007CC3E0 /* KeyboardShortcutManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB7B4A92FA65D0B007CC3E0 /* KeyboardShortcutManager.swift */; };
+		8BB7B4AC2FA65D1D007CC3E0 /* TodoRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB7B4AB2FA65D1D007CC3E0 /* TodoRepository.swift */; };
+		8BB7B4AE2FA65D30007CC3E0 /* TodoItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB7B4AD2FA65D30007CC3E0 /* TodoItem.swift */; };
+		8BB7B4B02FA65D95007CC3E0 /* TodoListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB7B4AF2FA65D95007CC3E0 /* TodoListViewModel.swift */; };
+		8BB7B4B22FA65DA1007CC3E0 /* TodoListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB7B4B12FA65DA1007CC3E0 /* TodoListView.swift */; };
+		8BB7B4B42FA6703A007CC3E0 /* SessionCompletionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB7B4B32FA6703A007CC3E0 /* SessionCompletionView.swift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		8BB7B4592FA62A4F007CC3E0 /* FlowOSAppleApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FlowOSAppleApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8BB7B4802FA63176007CC3E0 /* ActiveTimerRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveTimerRepository.swift; sourceTree = "<group>"; };
+		8BB7B4812FA63176007CC3E0 /* DataFolderManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataFolderManager.swift; sourceTree = "<group>"; };
+		8BB7B4822FA63176007CC3E0 /* JSONFileStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONFileStore.swift; sourceTree = "<group>"; };
+		8BB7B4832FA63176007CC3E0 /* SessionRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionRepository.swift; sourceTree = "<group>"; };
+		8BB7B4842FA63176007CC3E0 /* SettingsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsRepository.swift; sourceTree = "<group>"; };
+		8BB7B4862FA63176007CC3E0 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		8BB7B4872FA63176007CC3E0 /* TimerEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerEngine.swift; sourceTree = "<group>"; };
+		8BB7B4882FA63176007CC3E0 /* TimerRules.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerRules.swift; sourceTree = "<group>"; };
+		8BB7B48A2FA63176007CC3E0 /* AppCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
+		8BB7B48B2FA63176007CC3E0 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
+		8BB7B48C2FA63176007CC3E0 /* WidgetDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetDataProvider.swift; sourceTree = "<group>"; };
+		8BB7B48E2FA63176007CC3E0 /* HistoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryViewModel.swift; sourceTree = "<group>"; };
+		8BB7B48F2FA63176007CC3E0 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
+		8BB7B4902FA63176007CC3E0 /* TimerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerViewModel.swift; sourceTree = "<group>"; };
+		8BB7B4922FA63176007CC3E0 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
+		8BB7B4932FA63176007CC3E0 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		8BB7B4942FA63176007CC3E0 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		8BB7B4952FA63176007CC3E0 /* TimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerView.swift; sourceTree = "<group>"; };
+		8BB7B4A92FA65D0B007CC3E0 /* KeyboardShortcutManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardShortcutManager.swift; sourceTree = "<group>"; };
+		8BB7B4AB2FA65D1D007CC3E0 /* TodoRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoRepository.swift; sourceTree = "<group>"; };
+		8BB7B4AD2FA65D30007CC3E0 /* TodoItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoItem.swift; sourceTree = "<group>"; };
+		8BB7B4AF2FA65D95007CC3E0 /* TodoListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoListViewModel.swift; sourceTree = "<group>"; };
+		8BB7B4B12FA65DA1007CC3E0 /* TodoListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoListView.swift; sourceTree = "<group>"; };
+		8BB7B4B32FA6703A007CC3E0 /* SessionCompletionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionCompletionView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -32,6 +83,11 @@
 		8BB7B4502FA62A4F007CC3E0 = {
 			isa = PBXGroup;
 			children = (
+				8BB7B4852FA63176007CC3E0 /* Data */,
+				8BB7B4892FA63176007CC3E0 /* Domain */,
+				8BB7B48D2FA63176007CC3E0 /* Services */,
+				8BB7B4912FA63176007CC3E0 /* ViewModels */,
+				8BB7B4962FA63176007CC3E0 /* Views */,
 				8BB7B45B2FA62A4F007CC3E0 /* FlowOSAppleApp */,
 				8BB7B45A2FA62A4F007CC3E0 /* Products */,
 			);
@@ -43,6 +99,65 @@
 				8BB7B4592FA62A4F007CC3E0 /* FlowOSAppleApp.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		8BB7B4852FA63176007CC3E0 /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				8BB7B4AB2FA65D1D007CC3E0 /* TodoRepository.swift */,
+				8BB7B4802FA63176007CC3E0 /* ActiveTimerRepository.swift */,
+				8BB7B4812FA63176007CC3E0 /* DataFolderManager.swift */,
+				8BB7B4822FA63176007CC3E0 /* JSONFileStore.swift */,
+				8BB7B4832FA63176007CC3E0 /* SessionRepository.swift */,
+				8BB7B4842FA63176007CC3E0 /* SettingsRepository.swift */,
+			);
+			path = Data;
+			sourceTree = "<group>";
+		};
+		8BB7B4892FA63176007CC3E0 /* Domain */ = {
+			isa = PBXGroup;
+			children = (
+				8BB7B4AD2FA65D30007CC3E0 /* TodoItem.swift */,
+				8BB7B4862FA63176007CC3E0 /* Models.swift */,
+				8BB7B4872FA63176007CC3E0 /* TimerEngine.swift */,
+				8BB7B4882FA63176007CC3E0 /* TimerRules.swift */,
+			);
+			path = Domain;
+			sourceTree = "<group>";
+		};
+		8BB7B48D2FA63176007CC3E0 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				8BB7B4A92FA65D0B007CC3E0 /* KeyboardShortcutManager.swift */,
+				8BB7B48A2FA63176007CC3E0 /* AppCoordinator.swift */,
+				8BB7B48B2FA63176007CC3E0 /* NotificationService.swift */,
+				8BB7B48C2FA63176007CC3E0 /* WidgetDataProvider.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		8BB7B4912FA63176007CC3E0 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				8BB7B4AF2FA65D95007CC3E0 /* TodoListViewModel.swift */,
+				8BB7B48E2FA63176007CC3E0 /* HistoryViewModel.swift */,
+				8BB7B48F2FA63176007CC3E0 /* SettingsViewModel.swift */,
+				8BB7B4902FA63176007CC3E0 /* TimerViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		8BB7B4962FA63176007CC3E0 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				8BB7B4B32FA6703A007CC3E0 /* SessionCompletionView.swift */,
+				8BB7B4B12FA65DA1007CC3E0 /* TodoListView.swift */,
+				8BB7B4922FA63176007CC3E0 /* HistoryView.swift */,
+				8BB7B4932FA63176007CC3E0 /* MainTabView.swift */,
+				8BB7B4942FA63176007CC3E0 /* SettingsView.swift */,
+				8BB7B4952FA63176007CC3E0 /* TimerView.swift */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -119,6 +234,30 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8BB7B4B42FA6703A007CC3E0 /* SessionCompletionView.swift in Sources */,
+				8BB7B4972FA63176007CC3E0 /* SettingsView.swift in Sources */,
+				8BB7B4B22FA65DA1007CC3E0 /* TodoListView.swift in Sources */,
+				8BB7B4982FA63176007CC3E0 /* TimerViewModel.swift in Sources */,
+				8BB7B4992FA63176007CC3E0 /* MainTabView.swift in Sources */,
+				8BB7B4AA2FA65D0B007CC3E0 /* KeyboardShortcutManager.swift in Sources */,
+				8BB7B49A2FA63176007CC3E0 /* DataFolderManager.swift in Sources */,
+				8BB7B49B2FA63176007CC3E0 /* SettingsRepository.swift in Sources */,
+				8BB7B4B02FA65D95007CC3E0 /* TodoListViewModel.swift in Sources */,
+				8BB7B49C2FA63176007CC3E0 /* HistoryView.swift in Sources */,
+				8BB7B49D2FA63176007CC3E0 /* TimerView.swift in Sources */,
+				8BB7B49E2FA63176007CC3E0 /* WidgetDataProvider.swift in Sources */,
+				8BB7B49F2FA63176007CC3E0 /* NotificationService.swift in Sources */,
+				8BB7B4A02FA63176007CC3E0 /* JSONFileStore.swift in Sources */,
+				8BB7B4A12FA63176007CC3E0 /* TimerEngine.swift in Sources */,
+				8BB7B4A22FA63176007CC3E0 /* SessionRepository.swift in Sources */,
+				8BB7B4A32FA63176007CC3E0 /* HistoryViewModel.swift in Sources */,
+				8BB7B4A42FA63176007CC3E0 /* SettingsViewModel.swift in Sources */,
+				8BB7B4AE2FA65D30007CC3E0 /* TodoItem.swift in Sources */,
+				8BB7B4A52FA63176007CC3E0 /* TimerRules.swift in Sources */,
+				8BB7B4AC2FA65D1D007CC3E0 /* TodoRepository.swift in Sources */,
+				8BB7B4A62FA63176007CC3E0 /* ActiveTimerRepository.swift in Sources */,
+				8BB7B4A72FA63176007CC3E0 /* Models.swift in Sources */,
+				8BB7B4A82FA63176007CC3E0 /* AppCoordinator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
