@@ -33,6 +33,9 @@ public final class AppCoordinator {
     /// Todo 仓库
     public let todoRepository: TodoRepository
 
+    /// TodoList ViewModel（保持单例，避免切换标签页时数据丢失）
+    public let todoListViewModel: TodoListViewModel
+
     /// 是否显示任务完成视图
     public var showSessionCompletion = false
 
@@ -59,6 +62,7 @@ public final class AppCoordinator {
         self.widgetDataProvider = .shared
         self.keyboardShortcutManager = .shared
         self.todoRepository = .shared
+        self.todoListViewModel = TodoListViewModel(todoRepository: .shared)
 
         setupEngineCallbacks()
         setupKeyboardShortcut()

@@ -34,7 +34,7 @@ public struct MainTabView: View {
                 .tag(0)
 
             // TodoList 标签页
-            TodoListView(viewModel: TodoListViewModel(todoRepository: coordinator.todoRepository))
+            TodoListView(viewModel: coordinator.todoListViewModel)
                 .tabItem {
                     Label("待办", systemImage: "checklist")
                 }
@@ -49,7 +49,7 @@ public struct MainTabView: View {
         }
         .sheet(isPresented: $coordinator.showSessionCompletion) {
             SessionCompletionView(
-                todoViewModel: TodoListViewModel(todoRepository: coordinator.todoRepository)
+                todoViewModel: coordinator.todoListViewModel
             ) { completedTaskIds, taskProgress in
                 coordinator.handleTaskSelection(
                     completedTaskIds: completedTaskIds,
