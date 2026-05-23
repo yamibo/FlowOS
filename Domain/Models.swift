@@ -13,9 +13,9 @@ public enum SessionType: String, Codable, CaseIterable, Identifiable, Sendable {
     /// 显示名称
     public var displayName: String {
         switch self {
-        case .focus: return "专注"
-        case .shortBreak: return "短休息"
-        case .longBreak: return "长休息"
+        case .focus: return L("Focus", defaultValue: "专注")
+        case .shortBreak: return L("Short Break", defaultValue: "短休息")
+        case .longBreak: return L("Long Break", defaultValue: "长休息")
         }
     }
 

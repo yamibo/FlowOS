@@ -74,11 +74,15 @@ public final class TimerViewModel {
     /// 启动刷新定时器（在 View 出现时调用）
     public func startRefreshing() {
         guard refreshTimer == nil else { return }
-        refreshTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
-            DispatchQueue.main.async { [weak self] in
+        refreshTimer = Timer(timeInterval: 0.1, repeats: true) { [weak self] _ in
+            guard let self else { return }
+            Task { @MainActor [weak self] in
                 self?.refreshFromEngine()
             }
         }
+        RunLoop.main.add(refreshTimer!, forMode: .common)
+        // 立即刷新一次
+        refreshFromEngine()
     }
 
     /// 停止刷新定时器
@@ -88,14 +92,6 @@ public final class TimerViewModel {
     }
 
     // MARK: - Refresh Timer
-
-    private func startRefreshTimer() {
-        refreshTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
-            DispatchQueue.main.async { [weak self] in
-                self?.refreshFromEngine()
-            }
-        }
-    }
 
     private func refreshFromEngine() {
         let engine = coordinator.engine

@@ -39,8 +39,16 @@ public final class AppCoordinator {
     /// 是否显示任务完成视图
     public var showSessionCompletion = false
 
+    /// 当前完成的 Session 类型（用于显示）
+    public var completedSessionType: SessionType = .focus
+
+    /// 休息结束后是否应自动切换到计时器标签页
+    public var shouldSwitchToTimerTab = false
+
     /// 当前 Session 完成回调
     private var sessionCompletionHandler: (([UUID], [UUID: Int]) -> Void)?
+
+    private var cancellables = Set<AnyCancellable>()
 
     /// 当前设置
     public var settings: TimerSettings = .default
@@ -50,6 +58,12 @@ public final class AppCoordinator {
 
     /// 是否已初始化
     public var isInitialized = false
+
+    /// 菜单栏显示用的剩余时间（用于触发 UI 更新）
+    public var menuBarRemainingSeconds: Int = 25 * 60
+
+    /// 菜单栏显示用的计时器状态
+    public var menuBarStatus: TimerStatus = .idle
 
     // MARK: - Init
 
@@ -66,14 +80,21 @@ public final class AppCoordinator {
 
         setupEngineCallbacks()
         setupKeyboardShortcut()
+        setupDataDirectoryObserver()
     }
 
     // MARK: - Public API
 
     /// 初始化
     public func initialize() async {
+        // 请求数据目录授权
+        await requestDirectoryAuthorization()
+
         // 加载设置
         settings = settingsRepository.load().timer
+
+        // 初始化菜单栏显示
+        menuBarRemainingSeconds = settings.durationSeconds(for: .focus)
 
         // 加载今日统计
         todayStats = sessionRepository.getTodayStats()
@@ -89,8 +110,18 @@ public final class AppCoordinator {
         isInitialized = true
     }
 
+    /// 请求数据目录授权
+    private func requestDirectoryAuthorization() async {
+        let syncManager = iCloudDriveSyncManager.shared
+        if !syncManager.isICloudDriveAvailable {
+            _ = await syncManager.ensureAuthorized()
+        }
+    }
+
     /// 开始 Session
     public func startSession(_ type: SessionType) {
+        // 重新加载设置以获取最新值
+        settings = settingsRepository.load().timer
         engine.start(sessionType: type, durationSeconds: settings.durationSeconds(for: type))
     }
 
@@ -143,32 +174,149 @@ public final class AppCoordinator {
     private func setupEngineCallbacks() {
         engine.onTick = { [weak self] remaining, progress in
             Task { @MainActor in
-                self?.updateWidgetData()
-                self?.saveCurrentState()
+                guard let self = self else { return }
+                // 更新菜单栏显示属性（触发 UI 刷新）
+                self.menuBarRemainingSeconds = remaining
+                self.menuBarStatus = self.engine.state.status
+                self.updateWidgetData()
+                self.saveCurrentState()
             }
         }
 
-        engine.onComplete = { [weak self] in
+        engine.onComplete = { [weak self] completedSessionType, startedAt, durationSeconds in
             Task { @MainActor in
-                await self?.handleSessionComplete()
+                guard let self = self else { return }
+                self.menuBarStatus = .idle
+                await self.handleSessionComplete(
+                    completedSessionType: completedSessionType,
+                    startedAt: startedAt,
+                    durationSeconds: durationSeconds
+                )
+            }
+        }
+
+        engine.onStop = { [weak self] stoppedSessionType, startedAt, elapsedSeconds in
+            Task { @MainActor in
+                guard let self = self else { return }
+                self.menuBarStatus = .idle
+                self.handleSessionStopped(
+                    sessionType: stoppedSessionType,
+                    startedAt: startedAt,
+                    elapsedSeconds: elapsedSeconds
+                )
+            }
+        }
+
+        engine.onSkip = { [weak self] skippedSessionType, startedAt, elapsedSeconds in
+            Task { @MainActor in
+                guard let self = self else { return }
+                self.menuBarStatus = .idle
+                self.handleSessionSkipped(
+                    sessionType: skippedSessionType,
+                    startedAt: startedAt,
+                    elapsedSeconds: elapsedSeconds
+                )
             }
         }
     }
 
-    private func handleSessionComplete() async {
-        let sessionType = engine.state.sessionType
+    private func handleSessionComplete(completedSessionType: SessionType, startedAt: Date, durationSeconds: Int) async {
+        self.completedSessionType = completedSessionType
 
-        // 记录 Session
-        if sessionType == .focus, engine.state.startedAt != nil {
-            // 显示任务选择视图
+        if completedSessionType == .focus {
             showSessionCompletion = true
+        } else {
+            recordSession(
+                sessionType: completedSessionType,
+                startedAt: startedAt,
+                durationSeconds: durationSeconds,
+                completed: true,
+                completedTaskIds: nil,
+                taskProgress: nil
+            )
+            shouldSwitchToTimerTab = true
         }
 
         // 发送通知
-        await notificationService.sendSessionCompleteNotification(sessionType: sessionType)
+        await notificationService.sendSessionCompleteNotification(sessionType: completedSessionType)
 
         // 更新 Widget
         updateWidgetData()
+    }
+
+    /// 处理停止事件
+    private func handleSessionStopped(sessionType: SessionType, startedAt: Date, elapsedSeconds: Int) {
+        self.completedSessionType = sessionType
+
+        // 只有运行了一段时间才记录
+        if elapsedSeconds > 0 {
+            if sessionType == .focus {
+                // 专注时段停止，显示任务选择
+                showSessionCompletion = true
+            } else {
+                // 非专注时段，直接记录
+                recordSession(
+                    sessionType: sessionType,
+                    startedAt: startedAt,
+                    durationSeconds: elapsedSeconds,
+                    completed: false,
+                    completedTaskIds: nil,
+                    taskProgress: nil
+                )
+            }
+        }
+
+        // 更新 Widget
+        updateWidgetData()
+    }
+
+    /// 处理跳过事件
+    private func handleSessionSkipped(sessionType: SessionType, startedAt: Date, elapsedSeconds: Int) {
+        self.completedSessionType = sessionType
+
+        if sessionType == .focus {
+            // 专注时段跳过，显示任务选择
+            showSessionCompletion = true
+        } else {
+            // 非专注时段，直接记录
+            recordSession(
+                sessionType: sessionType,
+                startedAt: startedAt,
+                durationSeconds: elapsedSeconds,
+                completed: false,
+                completedTaskIds: nil,
+                taskProgress: nil
+            )
+            // 休息跳过，跳转到计时器标签页
+            shouldSwitchToTimerTab = true
+        }
+
+        // 更新 Widget
+        updateWidgetData()
+    }
+
+    /// 记录 Session
+    private func recordSession(
+        sessionType: SessionType,
+        startedAt: Date,
+        durationSeconds: Int,
+        completed: Bool,
+        completedTaskIds: [UUID]?,
+        taskProgress: [UUID: Int]?
+    ) {
+        let record = SessionRecord(
+            sessionType: sessionType,
+            startedAt: startedAt,
+            endedAt: Date(),
+            durationSeconds: durationSeconds,
+            completed: completed,
+            completedTaskIds: completedTaskIds,
+            taskProgress: taskProgress
+        )
+        try? sessionRepository.append(record)
+
+        // 更新今日统计
+        todayStats = sessionRepository.getTodayStats()
     }
 
     /// 处理任务选择完成
@@ -191,19 +339,15 @@ public final class AppCoordinator {
         }
 
         // 记录 Session
-        if sessionType == .focus, let startedAt = engine.state.startedAt {
-            let record = SessionRecord(
+        if let startedAt = engine.state.startedAt {
+            recordSession(
                 sessionType: sessionType,
                 startedAt: startedAt,
-                endedAt: Date(),
                 durationSeconds: engine.state.durationSeconds,
-                completedTaskIds: completedTaskIds,
-                taskProgress: taskProgress
+                completed: true,
+                completedTaskIds: completedTaskIds.isEmpty ? nil : completedTaskIds,
+                taskProgress: taskProgress.isEmpty ? nil : taskProgress
             )
-            try? sessionRepository.append(record)
-
-            // 更新今日统计
-            todayStats = sessionRepository.getTodayStats()
         }
     }
 
@@ -270,5 +414,17 @@ public final class AppCoordinator {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             self.keyboardShortcutManager.startListening()
         }
+    }
+
+    private func setupDataDirectoryObserver() {
+        NotificationCenter.default.publisher(for: .dataDirectoryDidChange)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                guard let self else { return }
+                self.settings = self.settingsRepository.load().timer
+                self.todayStats = self.sessionRepository.getTodayStats()
+                self.todoListViewModel.load()
+            }
+            .store(in: &cancellables)
     }
 }

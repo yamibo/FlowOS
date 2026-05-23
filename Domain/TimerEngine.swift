@@ -12,8 +12,14 @@ public final class TimerEngine {
     /// 时间更新回调（remainingSeconds, progress）
     public var onTick: ((Int, Double) -> Void)?
 
-    /// Session 完成回调
-    public var onComplete: (() -> Void)?
+    /// Session 完成回调（sessionType, startedAt, durationSeconds）
+    public var onComplete: ((SessionType, Date, Int) -> Void)?
+
+    /// Session 停止回调（sessionType, startedAt, elapsedSeconds）
+    public var onStop: ((SessionType, Date, Int) -> Void)?
+
+    /// Session 跳过回调（sessionType, startedAt, elapsedSeconds）
+    public var onSkip: ((SessionType, Date, Int) -> Void)?
 
     /// 当前状态
     public private(set) var state: ActiveTimerState
@@ -119,6 +125,11 @@ public final class TimerEngine {
 
     /// 停止（取消当前 Session）
     public func stop() {
+        // 在重置状态之前保存信息
+        let stoppedSessionType = state.sessionType
+        let startedAt = state.startedAt ?? Date()
+        let elapsedSeconds = calculateElapsedSeconds()
+
         stopTimer()
 
         state = ActiveTimerState(
@@ -138,12 +149,31 @@ public final class TimerEngine {
 
         isRunning = false
         notifyTick()
+
+        // 通知停止事件（传递完整信息）
+        onStop?(stoppedSessionType, startedAt, elapsedSeconds)
     }
 
     /// 跳过当前 Session
     public func skip() {
+        // 在重置状态之前保存信息
+        let skippedSessionType = state.sessionType
+        let startedAt = state.startedAt ?? Date()
+        let elapsedSeconds = calculateElapsedSeconds()
+
         stopTimer()
+
+        // 通知跳过事件（传递完整信息）
+        onSkip?(skippedSessionType, startedAt, elapsedSeconds)
+
         advanceToNextSession()
+    }
+
+    /// 计算已运行的时长（秒）
+    private func calculateElapsedSeconds() -> Int {
+        guard let startedAt = state.startedAt else { return 0 }
+        let elapsed = state.durationSeconds - remainingSeconds
+        return max(0, elapsed)
     }
 
     /// 恢复状态（用于 App 重启后恢复）
@@ -157,6 +187,11 @@ public final class TimerEngine {
     /// 完成当前 Session
     public func complete() {
         stopTimer()
+
+        // 在重置状态之前保存信息
+        let completedSessionType = state.sessionType
+        let startedAt = state.startedAt ?? Date()
+        let duration = state.durationSeconds
 
         // 更新 cycle 计数
         let newSessionsCompleted: Int
@@ -182,7 +217,7 @@ public final class TimerEngine {
         )
 
         isRunning = false
-        onComplete?()
+        onComplete?(completedSessionType, startedAt, duration)
     }
 
     // MARK: - State Query
@@ -210,9 +245,10 @@ public final class TimerEngine {
     // MARK: - Private
 
     private func startTimer() {
-        timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
+        timer = Timer(timeInterval: 0.1, repeats: true) { [weak self] _ in
             self?.handleTick()
         }
+        RunLoop.main.add(timer!, forMode: .common)
     }
 
     private func stopTimer() {

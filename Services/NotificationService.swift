@@ -44,14 +44,14 @@ public final class NotificationService: Sendable {
 
         switch sessionType {
         case .focus:
-            title = "专注完成！"
-            body = "休息一下吧"
+            title = L("Focus session complete!", defaultValue: "专注完成！")
+            body = L("Take a break and relax", defaultValue: "休息一下吧")
         case .shortBreak:
-            title = "短休息结束"
-            body = "准备好继续专注了吗？"
+            title = L("Short break is over!", defaultValue: "短休息结束")
+            body = L("Time to focus!", defaultValue: "准备好继续专注了吗？")
         case .longBreak:
-            title = "长休息结束"
-            body = "新的周期开始了"
+            title = L("Long break is over!", defaultValue: "长休息结束")
+            body = L("Time to focus!", defaultValue: "新的周期开始了")
         }
 
         let content = UNMutableNotificationContent()

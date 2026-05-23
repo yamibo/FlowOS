@@ -1,28 +1,25 @@
 import SwiftUI
 
-/// 计时器视图
 public struct TimerView: View {
-    // MARK: - Properties
-
     @Bindable var viewModel: TimerViewModel
-
-    // MARK: - Body
+    @Environment(\.languageVersion) private var languageVersion
 
     public var body: some View {
-        VStack(spacing: 32) {
-            // Session 类型选择器
-            sessionTypePicker
+        FlowOSPage {
+            VStack(alignment: .leading, spacing: 18) {
+                header
 
-            // 计时器显示
-            timerDisplay
+                FlowOSPanel {
+                    VStack(spacing: 24) {
+                        sessionTypePicker
+                        timerDisplay
+                        controlButtons
+                    }
+                }
 
-            // 控制按钮
-            controlButtons
-
-            // 今日统计
-            todayStatsView
+                todayStatsView
+            }
         }
-        .padding()
         .onAppear {
             viewModel.startRefreshing()
         }
@@ -31,20 +28,43 @@ public struct TimerView: View {
         }
     }
 
-    // MARK: - Subviews
+    private var header: some View {
+        HStack(alignment: .lastTextBaseline) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(L("Focus Timer", defaultValue: "专注计时"))
+                    .font(.title2.bold())
+                Text(statusDescription)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer()
+
+            Text(viewModel.sessionType.displayName)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(viewModel.progressColor)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 5)
+                .background(viewModel.progressColor.opacity(0.12), in: Capsule())
+        }
+    }
 
     private var sessionTypePicker: some View {
-        HStack(spacing: 16) {
+        HStack(spacing: 8) {
             ForEach(SessionType.allCases) { type in
                 Button {
                     viewModel.switchTo(type)
                 } label: {
                     Label(type.displayName, systemImage: type.iconName)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
-                        .background(viewModel.sessionType == type ? Color.accentColor : Color.gray.opacity(0.2))
+                        .font(.system(size: 13, weight: .semibold))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 9)
+                        .background(sessionButtonBackground(for: type), in: RoundedRectangle(cornerRadius: 8))
                         .foregroundStyle(viewModel.sessionType == type ? .white : .primary)
-                        .cornerRadius(8)
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 8)
+                                .strokeBorder(FlowOSDesign.hairline, lineWidth: viewModel.sessionType == type ? 0 : 1)
+                        }
                 }
                 .buttonStyle(.plain)
             }
@@ -52,27 +72,50 @@ public struct TimerView: View {
     }
 
     private var timerDisplay: some View {
-        ZStack {
-            // 进度环
-            Circle()
-                .stroke(viewModel.progressColor.opacity(0.2), lineWidth: 12)
-                .frame(width: 200, height: 200)
+        HStack(spacing: 28) {
+            ZStack {
+                Circle()
+                    .stroke(viewModel.progressColor.opacity(0.16), lineWidth: 14)
+                    .frame(width: 220, height: 220)
 
-            Circle()
-                .trim(from: 0, to: viewModel.progress)
-                .stroke(viewModel.progressColor, style: StrokeStyle(lineWidth: 12, lineCap: .round))
-                .frame(width: 200, height: 200)
-                .rotationEffect(.degrees(-90))
+                Circle()
+                    .trim(from: 0, to: viewModel.progress)
+                    .stroke(viewModel.progressColor, style: StrokeStyle(lineWidth: 14, lineCap: .round))
+                    .frame(width: 220, height: 220)
+                    .rotationEffect(.degrees(-90))
+                    .animation(.easeOut(duration: 0.25), value: viewModel.progress)
 
-            // 时间显示
-            Text(viewModel.formattedTime)
-                .font(.system(size: 48, weight: .bold, design: .rounded))
+                VStack(spacing: 8) {
+                    Text(viewModel.formattedTime)
+                        .font(.system(size: 50, weight: .bold, design: .rounded))
+                        .monospacedDigit()
+                    Text(statusText)
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(.secondary)
+                }
+            }
+
+            VStack(alignment: .leading, spacing: 12) {
+                FlowOSMetric(
+                    title: L("Session Length", defaultValue: "本轮时长"),
+                    value: sessionLengthText,
+                    icon: "timer",
+                    color: viewModel.progressColor
+                )
+
+                FlowOSMetric(
+                    title: L("Progress", defaultValue: "进度"),
+                    value: "\(Int(viewModel.progress * 100))%",
+                    icon: "chart.line.uptrend.xyaxis",
+                    color: .blue
+                )
+            }
         }
+        .frame(maxWidth: .infinity)
     }
 
     private var controlButtons: some View {
-        HStack(spacing: 24) {
-            // 开始/暂停按钮
+        HStack(spacing: 12) {
             Button {
                 switch viewModel.status {
                 case .idle:
@@ -83,77 +126,93 @@ public struct TimerView: View {
                     viewModel.resume()
                 }
             } label: {
-                Image(systemName: viewModel.status == .running ? "pause.fill" : "play.fill")
-                    .font(.title)
-                    .frame(width: 60, height: 60)
-                    .background(Color.accentColor)
-                    .foregroundStyle(.white)
-                    .cornerRadius(30)
+                Label(primaryButtonTitle, systemImage: viewModel.status == .running ? "pause.fill" : "play.fill")
+                    .font(.system(size: 14, weight: .semibold))
+                    .frame(minWidth: 132)
+                    .padding(.vertical, 10)
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.borderedProminent)
+            .controlSize(.large)
 
-            // 停止按钮
             if viewModel.status != .idle {
                 Button {
                     viewModel.stop()
                 } label: {
-                    Image(systemName: "stop.fill")
-                        .font(.title2)
-                        .frame(width: 44, height: 44)
-                        .background(Color.gray.opacity(0.2))
-                        .foregroundStyle(.primary)
-                        .cornerRadius(22)
+                    Label(L("Stop", defaultValue: "停止"), systemImage: "stop.fill")
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.bordered)
+                .controlSize(.large)
             }
 
-            // 跳过按钮
             if viewModel.status != .idle {
                 Button {
                     viewModel.skip()
                 } label: {
-                    Image(systemName: "forward.fill")
-                        .font(.title2)
-                        .frame(width: 44, height: 44)
-                        .background(Color.gray.opacity(0.2))
-                        .foregroundStyle(.primary)
-                        .cornerRadius(22)
+                    Label(L("Skip", defaultValue: "跳过"), systemImage: "forward.fill")
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.bordered)
+                .controlSize(.large)
             }
         }
     }
 
     private var todayStatsView: some View {
-        HStack(spacing: 32) {
-            VStack {
-                Text("\(viewModel.todayStats.focusSessions)")
-                    .font(.title2.bold())
-                Text("专注次数")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
+        HStack(spacing: 12) {
+            FlowOSMetric(
+                title: L("Focus Sessions", defaultValue: "专注次数"),
+                value: "\(viewModel.todayStats.focusSessions)",
+                icon: "target",
+                color: .red
+            )
 
-            VStack {
-                Text(viewModel.todayStats.formattedFocusDuration)
-                    .font(.title2.bold())
-                Text("专注时长")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
+            FlowOSMetric(
+                title: L("Total Focus Time", defaultValue: "专注时长"),
+                value: viewModel.todayStats.formattedFocusDuration,
+                icon: "clock.fill",
+                color: .blue
+            )
 
-            VStack {
-                Text("\(viewModel.sessionsCompletedInCycle)/\(viewModel.settings.longBreakEvery)")
-                    .font(.title2.bold())
-                Text("当前周期")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
+            FlowOSMetric(
+                title: L("Current Cycle", defaultValue: "当前周期"),
+                value: "\(viewModel.sessionsCompletedInCycle)/\(viewModel.settings.longBreakEvery)",
+                icon: "repeat",
+                color: .green
+            )
         }
-        .padding(.top, 16)
     }
 
-    // MARK: - Init
+    private func sessionButtonBackground(for type: SessionType) -> Color {
+        viewModel.sessionType == type ? FlowOSDesign.sessionColor(type) : FlowOSDesign.elevatedBackground.opacity(0.72)
+    }
+
+    private var primaryButtonTitle: String {
+        switch viewModel.status {
+        case .idle: return L("Start", defaultValue: "开始")
+        case .running: return L("Pause", defaultValue: "暂停")
+        case .paused: return L("Resume", defaultValue: "继续")
+        }
+    }
+
+    private var statusText: String {
+        switch viewModel.status {
+        case .idle: return L("Ready", defaultValue: "准备就绪")
+        case .running: return L("Running", defaultValue: "进行中")
+        case .paused: return L("Paused", defaultValue: "已暂停")
+        }
+    }
+
+    private var statusDescription: String {
+        switch viewModel.status {
+        case .idle: return L("Pick a session and start when you are ready.", defaultValue: "选择一个时段，准备好后开始。")
+        case .running: return L("Stay with the current task until the timer ends.", defaultValue: "保持在当前任务上，直到计时结束。")
+        case .paused: return L("Timer paused. Resume when you are ready.", defaultValue: "计时已暂停，准备好后继续。")
+        }
+    }
+
+    private var sessionLengthText: String {
+        let minutes = max(1, viewModel.settings.durationSeconds(for: viewModel.sessionType) / 60)
+        return "\(minutes) \(L("min", defaultValue: "分钟"))"
+    }
 
     public init(viewModel: TimerViewModel) {
         self.viewModel = viewModel

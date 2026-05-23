@@ -53,8 +53,14 @@ public enum DataFolderManager {
     public static func ensureDirectoriesExist() throws {
         try FileManager.default.createDirectory(at: appDataURL, withIntermediateDirectories: true)
 
+        // App Group 目录是可选的（仅当配置了 App Group 时才需要）
         if let sharedURL = sharedURL {
-            try FileManager.default.createDirectory(at: sharedURL, withIntermediateDirectories: true)
+            do {
+                try FileManager.default.createDirectory(at: sharedURL, withIntermediateDirectories: true)
+            } catch {
+                // App Group 目录创建失败时只打印警告，不阻止应用运行
+                logPrint("[DataFolderManager] Warning: Could not create App Group directory: \(error)")
+            }
         }
     }
 }

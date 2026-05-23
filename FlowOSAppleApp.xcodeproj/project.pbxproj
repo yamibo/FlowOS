@@ -31,6 +31,9 @@
 		8BB7B4B02FA65D95007CC3E0 /* TodoListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB7B4AF2FA65D95007CC3E0 /* TodoListViewModel.swift */; };
 		8BB7B4B22FA65DA1007CC3E0 /* TodoListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB7B4B12FA65DA1007CC3E0 /* TodoListView.swift */; };
 		8BB7B4B42FA6703A007CC3E0 /* SessionCompletionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB7B4B32FA6703A007CC3E0 /* SessionCompletionView.swift */; };
+		8BB7B4B62FA70000007CC3E0 /* LanguageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB7B4B52FA70000007CC3E0 /* LanguageManager.swift */; };
+		B2D1DE69A16A495D84ED4ED8 /* iCloudDriveSyncManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D1DE68A16A495D84ED4ED7 /* iCloudDriveSyncManager.swift */; };
+		B2D1DE6BA16A495D84ED4EDA /* DirectoryAuthorizationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D1DE6AA16A495D84ED4ED9 /* DirectoryAuthorizationManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -59,11 +62,28 @@
 		8BB7B4AF2FA65D95007CC3E0 /* TodoListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoListViewModel.swift; sourceTree = "<group>"; };
 		8BB7B4B12FA65DA1007CC3E0 /* TodoListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoListView.swift; sourceTree = "<group>"; };
 		8BB7B4B32FA6703A007CC3E0 /* SessionCompletionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionCompletionView.swift; sourceTree = "<group>"; };
+		8BB7B4B52FA70000007CC3E0 /* LanguageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageManager.swift; sourceTree = "<group>"; };
+		B2D1DE67A16A495D84ED4ED6 /* CloudKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitManager.swift; sourceTree = "<group>"; };
+		B2D1DE68A16A495D84ED4ED7 /* iCloudDriveSyncManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iCloudDriveSyncManager.swift; sourceTree = "<group>"; };
+		B2D1DE6AA16A495D84ED4ED9 /* DirectoryAuthorizationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectoryAuthorizationManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		8B7F57A22FAA8E1000035BB5 /* Exceptions for "FlowOSAppleApp" folder in "FlowOSAppleApp" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 8BB7B4582FA62A4F007CC3E0 /* FlowOSAppleApp */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		8BB7B45B2FA62A4F007CC3E0 /* FlowOSAppleApp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				8B7F57A22FAA8E1000035BB5 /* Exceptions for "FlowOSAppleApp" folder in "FlowOSAppleApp" target */,
+			);
 			path = FlowOSAppleApp;
 			sourceTree = "<group>";
 		};
@@ -80,6 +100,13 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		8B96D6A72FBCE9FB00EA5D38 /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = "Recovered References";
+			sourceTree = "<group>";
+		};
 		8BB7B4502FA62A4F007CC3E0 = {
 			isa = PBXGroup;
 			children = (
@@ -90,6 +117,7 @@
 				8BB7B4962FA63176007CC3E0 /* Views */,
 				8BB7B45B2FA62A4F007CC3E0 /* FlowOSAppleApp */,
 				8BB7B45A2FA62A4F007CC3E0 /* Products */,
+				8B96D6A72FBCE9FB00EA5D38 /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -117,6 +145,8 @@
 		8BB7B4892FA63176007CC3E0 /* Domain */ = {
 			isa = PBXGroup;
 			children = (
+				8BB7B4B52FA70000007CC3E0 /* LanguageManager.swift */,
+				B2D1DE68A16A495D84ED4ED7 /* iCloudDriveSyncManager.swift */,
 				8BB7B4AD2FA65D30007CC3E0 /* TodoItem.swift */,
 				8BB7B4862FA63176007CC3E0 /* Models.swift */,
 				8BB7B4872FA63176007CC3E0 /* TimerEngine.swift */,
@@ -128,6 +158,8 @@
 		8BB7B48D2FA63176007CC3E0 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				B2D1DE6AA16A495D84ED4ED9 /* DirectoryAuthorizationManager.swift */,
+				B2D1DE67A16A495D84ED4ED6 /* CloudKitManager.swift */,
 				8BB7B4A92FA65D0B007CC3E0 /* KeyboardShortcutManager.swift */,
 				8BB7B48A2FA63176007CC3E0 /* AppCoordinator.swift */,
 				8BB7B48B2FA63176007CC3E0 /* NotificationService.swift */,
@@ -206,6 +238,7 @@
 			knownRegions = (
 				en,
 				Base,
+				"zh-Hans",
 			);
 			mainGroup = 8BB7B4502FA62A4F007CC3E0;
 			minimizedProjectReferenceProxies = 1;
@@ -234,6 +267,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B2D1DE6BA16A495D84ED4EDA /* DirectoryAuthorizationManager.swift in Sources */,
+				8BB7B4B62FA70000007CC3E0 /* LanguageManager.swift in Sources */,
+				B2D1DE69A16A495D84ED4ED8 /* iCloudDriveSyncManager.swift in Sources */,
 				8BB7B4B42FA6703A007CC3E0 /* SessionCompletionView.swift in Sources */,
 				8BB7B4972FA63176007CC3E0 /* SettingsView.swift in Sources */,
 				8BB7B4B22FA65DA1007CC3E0 /* TodoListView.swift in Sources */,
@@ -387,13 +423,16 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = FlowOSAppleApp/FlowOSAppleApp.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = H85W6872VZ;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_PREVIEWS = YES;
-				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = FlowOSAppleApp/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -417,13 +456,16 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = FlowOSAppleApp/FlowOSAppleApp.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = H85W6872VZ;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_PREVIEWS = YES;
-				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = FlowOSAppleApp/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

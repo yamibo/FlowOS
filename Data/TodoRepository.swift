@@ -2,7 +2,7 @@ import Foundation
 
 /// Todo 仓库
 ///
-/// 管理 Todo 列表的持久化
+/// 管理 Todo 列表的持久化，支持 iCloud Drive 同步
 public final class TodoRepository: @unchecked Sendable {
     // MARK: - Singleton
 
@@ -13,6 +13,10 @@ public final class TodoRepository: @unchecked Sendable {
     private let fileURL: URL
     private var cachedList: TodoList?
     private let lock = NSLock()
+    private let iCloudSync = iCloudDriveSyncManager.shared
+
+    /// 已完成任务保留天数
+    public var completedTaskRetentionDays: Int = 30
 
     // MARK: - Init
 
@@ -21,6 +25,11 @@ public final class TodoRepository: @unchecked Sendable {
             self.fileURL = url
         } else {
             self.fileURL = DataFolderManager.appDataURL.appendingPathComponent("todos.json")
+        }
+
+        // 监听 iCloud Drive 外部变更
+        iCloudSync.onExternalChange = { [weak self] in
+            self?.handleExternalChange()
         }
     }
 
@@ -35,6 +44,14 @@ public final class TodoRepository: @unchecked Sendable {
             return cached
         }
 
+        // 优先从 iCloud Drive 加载
+        if let iCloudURL = iCloudSync.todoFileURL,
+           let iCloudList = iCloudSync.read(TodoList.self, from: iCloudURL) {
+            cachedList = iCloudList
+            return iCloudList
+        }
+
+        // 回退到本地文件
         do {
             try DataFolderManager.ensureDirectoriesExist()
             if let list = try JSONFileStore.read(TodoList.self, from: fileURL) {
@@ -57,11 +74,36 @@ public final class TodoRepository: @unchecked Sendable {
 
         try DataFolderManager.ensureDirectoriesExist()
 
+        // 清理超过保留天数的已完成任务
         var updated = list
+        updated.items = filterExpiredCompletedItems(updated.items)
         updated.updatedAt = Date()
 
+        // 保存到本地
         try JSONFileStore.write(updated, to: fileURL)
         cachedList = updated
+
+        // 同步到 iCloud Drive
+        if let iCloudURL = iCloudSync.todoFileURL {
+            try? iCloudSync.write(updated, to: iCloudURL)
+        }
+    }
+
+    /// 过滤过期的已完成任务
+    private func filterExpiredCompletedItems(_ items: [TodoItem]) -> [TodoItem] {
+        let calendar = Calendar.current
+        let cutoffDate = calendar.date(byAdding: .day, value: -completedTaskRetentionDays, to: Date())!
+
+        return items.filter { item in
+            // 未完成的任务保留
+            if !item.isCompleted { return true }
+
+            // 已完成但没有完成时间的任务保留
+            guard let completedAt = item.completedAt else { return true }
+
+            // 完成时间在保留期内则保留
+            return completedAt > cutoffDate
+        }
     }
 
     /// 添加 Todo 项
@@ -92,5 +134,20 @@ public final class TodoRepository: @unchecked Sendable {
         lock.lock()
         defer { lock.unlock() }
         cachedList = nil
+    }
+
+    /// 处理 iCloud Drive 外部变更
+    private func handleExternalChange() {
+        lock.lock()
+        defer { lock.unlock() }
+
+        // 从 iCloud Drive 重新加载
+        if let iCloudURL = iCloudSync.todoFileURL,
+           let iCloudList = iCloudSync.read(TodoList.self, from: iCloudURL) {
+            cachedList = iCloudList
+
+            // 同时更新本地文件
+            try? JSONFileStore.write(iCloudList, to: fileURL)
+        }
     }
 }

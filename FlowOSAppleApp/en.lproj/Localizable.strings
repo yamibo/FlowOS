@@ -1,0 +1,164 @@
+/* FlowOSApple - English Localization */
+
+// MARK: - Tab Labels
+"Timer" = "Timer";
+"Todo" = "Todo";
+"History" = "History";
+
+// MARK: - Session Types
+"Focus" = "Focus";
+"Short Break" = "Short Break";
+"Long Break" = "Long Break";
+
+// MARK: - Timer View
+"Start" = "Start";
+"Pause" = "Pause";
+"Resume" = "Resume";
+"Stop" = "Stop";
+"Skip" = "Skip";
+"Today's Focus" = "Today's Focus";
+"sessions" = "sessions";
+"min" = "min";
+"Focus Timer" = "Focus Timer";
+"Session Length" = "Session Length";
+"Progress" = "Progress";
+"Ready" = "Ready";
+"Running" = "Running";
+"Paused" = "Paused";
+"Pick a session and start when you are ready." = "Pick a session and start when you are ready.";
+"Stay with the current task until the timer ends." = "Stay with the current task until the timer ends.";
+"Timer paused. Resume when you are ready." = "Timer paused. Resume when you are ready.";
+
+// MARK: - Session Completion
+"Pomodoro Complete!" = "Pomodoro Complete!";
+"Short Break Over" = "Short Break Over";
+"Long Break Over" = "Long Break Over";
+"Which tasks did you complete?" = "Which tasks did you complete?";
+"Break is over, ready to focus" = "Break is over, ready to focus";
+"No pending tasks" = "No pending tasks";
+"Take a break and relax" = "Take a break and relax";
+"Confirm" = "Confirm";
+
+// MARK: - Todo View
+"Add new task..." = "Add new task...";
+"Edit" = "Edit";
+"Add Sub-item" = "Add Sub-item";
+"Expand Sub-items" = "Expand Sub-items";
+"Collapse Sub-items" = "Collapse Sub-items";
+"Pin" = "Pin";
+"Unpin" = "Unpin";
+"Delete" = "Delete";
+"Drag to reorder" = "Drag to reorder";
+"In Progress" = "In Progress";
+"Pending" = "Pending";
+"Tasks" = "Tasks";
+"Plan your focus work and break tasks into clear steps." = "Plan your focus work and break tasks into clear steps.";
+"Task Details" = "Task Details";
+"Title" = "Title";
+"Notes" = "Notes";
+"No tasks yet" = "No tasks yet";
+"Add a task above to plan your next focus session." = "Add a task above to plan your next focus session.";
+"Untitled task" = "Untitled task";
+"Pinned" = "Pinned";
+"subtasks" = "subtasks";
+"Priority %d" = "Priority %d";
+
+// MARK: - History View
+"Statistics" = "Statistics";
+"Time Range" = "Time Range";
+"Today" = "Today";
+"This Week" = "This Week";
+"This Month" = "This Month";
+"All Time" = "All Time";
+"Focus Sessions" = "Focus Sessions";
+"Total Focus Time" = "Total Focus Time";
+"Average Session" = "Average Session";
+"Completed" = "Completed";
+"Incomplete" = "Incomplete";
+"No records yet" = "No records yet";
+"Focus Distribution" = "Focus Distribution";
+"Daily Trend" = "Daily Trend";
+"Focus History" = "Focus History";
+"Review completed sessions and recent momentum." = "Review completed sessions and recent momentum.";
+"Sessions" = "Sessions";
+"Completed focus sessions will appear here." = "Completed focus sessions will appear here.";
+"Calendar" = "Calendar";
+"No sessions on this date" = "No sessions on this date";
+"Pick another date or time range to review completed sessions." = "Pick another date or time range to review completed sessions.";
+"Completed Tasks" = "Completed Tasks";
+
+// MARK: - Settings
+"Settings" = "Settings";
+"Language" = "Language";
+"Chinese (Simplified)" = "Chinese (Simplified)";
+"English" = "English";
+"Timer Settings" = "Timer Settings";
+"Focus Duration (min)" = "Focus Duration (min)";
+"Short Break Duration (min)" = "Short Break Duration (min)";
+"Long Break Duration (min)" = "Long Break Duration (min)";
+"Long Break Every N Sessions" = "Long Break Every N Sessions";
+"Auto-start Focus After Break" = "Auto-start Focus After Break";
+"Auto-start Break After Focus" = "Auto-start Break After Focus";
+"Data" = "Data";
+"Storage Directory" = "Storage Directory";
+"Change Directory" = "Change Directory";
+"iCloud Drive Sync" = "iCloud Drive Sync";
+"Sync Enabled" = "Sync Enabled";
+"Sync Disabled" = "Sync Disabled";
+"About" = "About";
+"Version" = "Version";
+"Keyboard Shortcuts" = "Keyboard Shortcuts";
+"Global Toggle Shortcut" = "Global Toggle Shortcut";
+"Click to record" = "Click to record";
+"Tune the timer, language, and sync location." = "Tune the timer, language, and sync location.";
+"Change" = "Change";
+
+// MARK: - Notifications
+"Focus session complete!" = "Focus session complete!";
+"Short break is over!" = "Short break is over!";
+"Long break is over!" = "Long break is over!";
+"Time to focus!" = "Time to focus!";
+"FlowOSApple" = "FlowOSApple";
+
+// MARK: - Directory Authorization
+"Select Data Storage Directory" = "Select Data Storage Directory";
+"Please select a directory to store FlowOSApple data. We recommend choosing a folder in iCloud Drive for multi-device sync." = "Please select a directory to store FlowOSApple data. We recommend choosing a folder in iCloud Drive for multi-device sync.";
+"Select" = "Select";
+"Data directory is not authorized" = "Data directory is not authorized";
+"Encoding failed" = "Encoding failed";
+"File not found" = "File not found";
+"Storage directory updated." = "Storage directory updated.";
+"Migrated data files:" = "Migrated data files:";
+"Kept existing files in the new directory:" = "Kept existing files in the new directory:";
+"No existing data files needed to be migrated." = "No existing data files needed to be migrated.";
+"Could not change the storage directory." = "Could not change the storage directory.";
+"OK" = "OK";
+
+// MARK: - Menu Bar
+"Open FlowOSApple" = "Open FlowOSApple";
+"Quit" = "Quit";
+
+// MARK: - Time Format
+"%d min %d sec" = "%d min %d sec";
+"%d:%02d" = "%d:%02d";
+
+// MARK: - Additional
+"Focus Duration" = "Focus Duration";
+"Short Break Duration" = "Short Break Duration";
+"Long Break Duration" = "Long Break Duration";
+"Long Break Every" = "Long Break Every";
+"focus sessions" = "focus sessions";
+"minutes" = "minutes";
+"Data Sync" = "Data Sync";
+"Data Storage Directory" = "Data Storage Directory";
+"Not Set" = "Not Set";
+"Change Storage Directory..." = "Change Storage Directory...";
+"Duration Settings" = "Duration Settings";
+"Auto-start" = "Auto-start";
+"Reset to Default" = "Reset to Default";
+"7 Days" = "7 Days";
+"30 Days" = "30 Days";
+"Total Sessions" = "Total Sessions";
+"Focus Duration" = "Focus Duration";
+"Current Cycle" = "Current Cycle";
+"Loading..." = "Loading...";

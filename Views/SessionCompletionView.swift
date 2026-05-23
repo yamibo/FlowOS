@@ -9,85 +9,70 @@ public struct SessionCompletionView: View {
 
     @State private var selectedTasks: Set<UUID> = []
     @State private var taskProgress: [UUID: Int] = [:]
+    @State private var expandedParents: Set<UUID> = []
 
+    let sessionType: SessionType
     let onComplete: ([UUID], [UUID: Int]) -> Void
 
     // MARK: - Body
 
     public var body: some View {
-        VStack(spacing: 20) {
-            // 标题
-            Text("番茄钟完成！")
-                .font(.title.bold())
+        VStack(spacing: 0) {
+            VStack(spacing: 8) {
+                Image(systemName: iconName)
+                    .font(.system(size: 34, weight: .semibold))
+                    .foregroundStyle(iconColor)
+                    .frame(width: 58, height: 58)
+                    .background(iconColor.opacity(0.12), in: RoundedRectangle(cornerRadius: 8))
 
-            Text("完成了哪些任务？")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+                Text(titleText)
+                    .font(.title2.bold())
 
-            if todoViewModel.uncompletedTasks.isEmpty && todoViewModel.inProgressTasks.isEmpty {
-                // 没有任务
-                VStack(spacing: 12) {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 48))
-                        .foregroundStyle(.green)
+                Text(subtitleText)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal, 22)
+            .padding(.top, 24)
+            .padding(.bottom, 18)
 
-                    Text("暂无待办任务")
-                        .foregroundStyle(.secondary)
-                }
-                .padding(.vertical, 40)
-            } else {
-                // 任务列表
+            if sessionType == .focus && !todoViewModel.uncompletedTasks.isEmpty {
                 ScrollView {
-                    VStack(spacing: 8) {
-                        // 进行中的任务
-                        if !todoViewModel.inProgressTasks.isEmpty {
-                            Section("进行中") {
-                                ForEach(todoViewModel.inProgressTasks) { task in
-                                    TaskProgressRow(
-                                        task: task,
-                                        isSelected: selectedTasks.contains(task.id),
-                                        progress: taskProgress[task.id] ?? task.completedPercentage,
-                                        onToggle: {
-                                            toggleTask(task)
-                                        },
-                                        onProgressChange: { newProgress in
-                                            taskProgress[task.id] = newProgress
-                                        }
-                                    )
-                                }
-                            }
-                        }
-
-                        // 未开始的任务
-                        if !todoViewModel.uncompletedTasks.filter({ !todoViewModel.inProgressTasks.contains($0) }).isEmpty {
-                            Section("待办") {
-                                ForEach(todoViewModel.uncompletedTasks.filter { !todoViewModel.inProgressTasks.contains($0) }) { task in
-                                    TaskSelectionRow(
-                                        task: task,
-                                        isSelected: selectedTasks.contains(task.id),
-                                        onToggle: {
-                                            toggleTask(task)
-                                        }
-                                    )
-                                }
-                            }
+                    LazyVStack(spacing: 8) {
+                        ForEach(unstartedTopLevelTasks) { task in
+                            SessionTaskRow(
+                                task: task,
+                                level: 0,
+                                todoViewModel: todoViewModel,
+                                selectedTasks: $selectedTasks,
+                                taskProgress: $taskProgress,
+                                expandedParents: $expandedParents
+                            )
                         }
                     }
-                    .padding()
+                    .padding(16)
                 }
+                .background(FlowOSDesign.pageBackground)
+            } else {
+                VStack(spacing: 12) {
+                    Text(emptyMessage)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .padding(.vertical, 40)
             }
 
             Divider()
 
-            // 按钮
             HStack(spacing: 16) {
-                Button("跳过") {
+                Button(L("Skip", defaultValue: "跳过")) {
                     onComplete([], [:])
                     dismiss()
                 }
                 .buttonStyle(.bordered)
 
-                Button("确认") {
+                Button(L("Confirm", defaultValue: "确认")) {
                     let progress = selectedTasks.reduce(into: [UUID: Int]()) { result, taskId in
                         if let p = taskProgress[taskId] {
                             result[taskId] = p
@@ -100,105 +85,189 @@ public struct SessionCompletionView: View {
                 }
                 .buttonStyle(.borderedProminent)
             }
+            .padding(16)
         }
-        .padding()
-        .frame(width: 400, height: 500)
+        .background(FlowOSDesign.panelBackground)
+        .frame(width: 460, height: 560)
+        .onAppear {
+            // 默认展开所有有子项的父项
+            for task in todoViewModel.uncompletedTasks {
+                if !todoViewModel.subItems(of: task.id).filter({ !$0.isCompleted }).isEmpty {
+                    expandedParents.insert(task.id)
+                }
+            }
+        }
     }
 
-    private func toggleTask(_ task: TodoItem) {
+    // MARK: - Computed Properties
+
+    private var unstartedTopLevelTasks: [TodoItem] {
+        todoViewModel.uncompletedTopLevelTasks
+    }
+
+    private var titleText: String {
+        switch sessionType {
+        case .focus: return L("Pomodoro Complete!", defaultValue: "番茄钟完成！")
+        case .shortBreak: return L("Short Break Over", defaultValue: "短休息结束")
+        case .longBreak: return L("Long Break Over", defaultValue: "长休息结束")
+        }
+    }
+
+    private var subtitleText: String {
+        switch sessionType {
+        case .focus: return L("Which tasks did you complete?", defaultValue: "完成了哪些任务？")
+        case .shortBreak, .longBreak: return L("Break is over, ready to focus", defaultValue: "休息时间已结束，准备继续专注")
+        }
+    }
+
+    private var iconName: String {
+        switch sessionType {
+        case .focus: return "checkmark.circle.fill"
+        case .shortBreak: return "cup.and.saucer.fill"
+        case .longBreak: return "moon.fill"
+        }
+    }
+
+    private var iconColor: Color {
+        switch sessionType {
+        case .focus: return .green
+        case .shortBreak: return .blue
+        case .longBreak: return .purple
+        }
+    }
+
+    private var emptyMessage: String {
+        switch sessionType {
+        case .focus: return L("No pending tasks", defaultValue: "暂无待办任务")
+        case .shortBreak, .longBreak: return L("Take a break and relax", defaultValue: "休息一下，放松身心")
+        }
+    }
+
+    // MARK: - Init
+
+    public init(todoViewModel: TodoListViewModel, sessionType: SessionType = .focus, onComplete: @escaping ([UUID], [UUID: Int]) -> Void) {
+        self.todoViewModel = todoViewModel
+        self.sessionType = sessionType
+        self.onComplete = onComplete
+    }
+}
+
+/// 任务行视图（用于 SessionCompletionView）
+struct SessionTaskRow: View {
+    let task: TodoItem
+    let level: Int
+    @Bindable var todoViewModel: TodoListViewModel
+    @Binding var selectedTasks: Set<UUID>
+    @Binding var taskProgress: [UUID: Int]
+    @Binding var expandedParents: Set<UUID>
+
+    private var hasSubItems: Bool {
+        !todoViewModel.subItems(of: task.id).filter { !$0.isCompleted }.isEmpty
+    }
+
+    private var isSelected: Bool {
+        selectedTasks.contains(task.id)
+    }
+
+    private var isExpanded: Bool {
+        expandedParents.contains(task.id)
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 8) {
+                // 展开/折叠按钮
+                if hasSubItems {
+                    Button {
+                        withAnimation {
+                            if expandedParents.contains(task.id) {
+                                expandedParents.remove(task.id)
+                            } else {
+                                expandedParents.insert(task.id)
+                            }
+                        }
+                    } label: {
+                        Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
+                            .font(.system(size: 10, weight: .semibold))
+                            .foregroundStyle(.secondary)
+                            .frame(width: 16)
+                    }
+                    .buttonStyle(.plain)
+                } else {
+                    Color.clear.frame(width: 16)
+                }
+
+                // 选择复选框
+                Button {
+                    toggleTask()
+                } label: {
+                    Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                        .foregroundStyle(isSelected ? .green : .gray)
+                        .font(.system(size: 18))
+                }
+                .buttonStyle(.plain)
+
+                // 任务文本
+                Text(task.displayText)
+                    .font(.system(size: 13, weight: task.isSubItem ? .regular : .medium))
+                    .lineLimit(2)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                // 进度滑块（选中时显示）
+                if isSelected {
+                    Slider(
+                        value: Binding(
+                            get: { Double(taskProgress[task.id] ?? 100) },
+                            set: { taskProgress[task.id] = Int($0) }
+                        ),
+                        in: 0...100,
+                        step: 10
+                    )
+                    .frame(width: 100)
+
+                    Text("\(taskProgress[task.id] ?? 100)%")
+                        .font(.caption.monospacedDigit())
+                        .foregroundStyle(.secondary)
+                        .frame(width: 35, alignment: .trailing)
+                } else if task.completedPercentage > 0 {
+                    Text("\(task.completedPercentage)%")
+                        .font(.caption.monospacedDigit())
+                        .foregroundStyle(.orange)
+                }
+            }
+            .padding(10)
+            .padding(.leading, CGFloat(level) * 20)
+            .background(isSelected ? Color.green.opacity(0.10) : FlowOSDesign.elevatedBackground.opacity(0.62), in: RoundedRectangle(cornerRadius: 8))
+            .overlay {
+                RoundedRectangle(cornerRadius: 8)
+                    .strokeBorder(isSelected ? Color.green.opacity(0.35) : FlowOSDesign.hairline, lineWidth: 1)
+            }
+
+            // 子任务
+            if isExpanded {
+                let subTasks = todoViewModel.subItems(of: task.id).filter { !$0.isCompleted }
+                ForEach(subTasks) { subTask in
+                    SessionTaskRow(
+                        task: subTask,
+                        level: level + 1,
+                        todoViewModel: todoViewModel,
+                        selectedTasks: $selectedTasks,
+                        taskProgress: $taskProgress,
+                        expandedParents: $expandedParents
+                    )
+                    .padding(.top, 6)
+                }
+            }
+        }
+    }
+
+    private func toggleTask() {
         if selectedTasks.contains(task.id) {
             selectedTasks.remove(task.id)
             taskProgress.removeValue(forKey: task.id)
         } else {
             selectedTasks.insert(task.id)
             taskProgress[task.id] = task.completedPercentage > 0 ? task.completedPercentage : 100
-        }
-    }
-
-    // MARK: - Init
-
-    public init(todoViewModel: TodoListViewModel, onComplete: @escaping ([UUID], [UUID: Int]) -> Void) {
-        self.todoViewModel = todoViewModel
-        self.onComplete = onComplete
-    }
-}
-
-/// 任务选择行
-struct TaskSelectionRow: View {
-    let task: TodoItem
-    let isSelected: Bool
-    let onToggle: () -> Void
-
-    var body: some View {
-        Button(action: onToggle) {
-            HStack(spacing: 12) {
-                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                    .foregroundStyle(isSelected ? .green : .gray)
-
-                if task.priority > 0 {
-                    Text(String(repeating: "!", count: task.priority))
-                        .font(.system(size: 14, weight: .bold))
-                        .foregroundStyle(.red)
-                }
-
-                Text(task.text)
-                    .foregroundStyle(.primary)
-
-                Spacer()
-            }
-            .padding(.vertical, 8)
-            .padding(.horizontal, 12)
-            .background(isSelected ? Color.green.opacity(0.1) : Color.clear)
-            .cornerRadius(8)
-        }
-        .buttonStyle(.plain)
-    }
-}
-
-/// 任务进度行
-struct TaskProgressRow: View {
-    let task: TodoItem
-    let isSelected: Bool
-    let progress: Int
-    let onToggle: () -> Void
-    let onProgressChange: (Int) -> Void
-
-    var body: some View {
-        VStack(spacing: 8) {
-            Button(action: onToggle) {
-                HStack(spacing: 12) {
-                    Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                        .foregroundStyle(isSelected ? .green : .gray)
-
-                    if task.priority > 0 {
-                        Text(String(repeating: "!", count: task.priority))
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundStyle(.red)
-                    }
-
-                    Text(task.text)
-                        .foregroundStyle(.primary)
-
-                    Spacer()
-
-                    Text("\(progress)%")
-                        .font(.subheadline.bold())
-                        .foregroundStyle(.secondary)
-                }
-                .padding(.vertical, 8)
-                .padding(.horizontal, 12)
-                .background(isSelected ? Color.green.opacity(0.1) : Color.clear)
-                .cornerRadius(8)
-            }
-            .buttonStyle(.plain)
-
-            if isSelected {
-                Slider(value: Binding(
-                    get: { Double(progress) },
-                    set: { onProgressChange(Int($0)) }
-                ), in: 0...100, step: 10)
-                .padding(.horizontal, 12)
-            }
         }
     }
 }

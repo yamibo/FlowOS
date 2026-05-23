@@ -11,6 +11,8 @@ public struct TodoItem: Codable, Identifiable, Equatable {
     public var createdAt: Date
     public var completedAt: Date?
     public var completedPercentage: Int  // 完成百分比 0-100
+    public var order: Int  // 用户自定义排序顺序
+    public var note: String  // 备注
 
     public init(
         id: UUID = UUID(),
@@ -21,7 +23,9 @@ public struct TodoItem: Codable, Identifiable, Equatable {
         parentId: UUID? = nil,
         createdAt: Date = Date(),
         completedAt: Date? = nil,
-        completedPercentage: Int = 0
+        completedPercentage: Int = 0,
+        order: Int = 0,
+        note: String = ""
     ) {
         self.id = id
         self.text = text
@@ -32,6 +36,37 @@ public struct TodoItem: Codable, Identifiable, Equatable {
         self.createdAt = createdAt
         self.completedAt = completedAt
         self.completedPercentage = completedPercentage
+        self.order = order
+        self.note = note
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case text
+        case isCompleted
+        case isPinned
+        case priority
+        case parentId
+        case createdAt
+        case completedAt
+        case completedPercentage
+        case order
+        case note
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(UUID.self, forKey: .id)
+        text = try container.decode(String.self, forKey: .text)
+        isCompleted = try container.decode(Bool.self, forKey: .isCompleted)
+        isPinned = try container.decode(Bool.self, forKey: .isPinned)
+        priority = try container.decode(Int.self, forKey: .priority)
+        parentId = try container.decodeIfPresent(UUID.self, forKey: .parentId)
+        createdAt = try container.decode(Date.self, forKey: .createdAt)
+        completedAt = try container.decodeIfPresent(Date.self, forKey: .completedAt)
+        completedPercentage = try container.decode(Int.self, forKey: .completedPercentage)
+        order = try container.decode(Int.self, forKey: .order)
+        note = try container.decodeIfPresent(String.self, forKey: .note) ?? ""
     }
 
     /// 是否是子项

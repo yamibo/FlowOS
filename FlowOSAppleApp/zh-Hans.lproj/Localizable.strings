@@ -1,0 +1,163 @@
+/* FlowOSApple - Chinese (Simplified) Localization */
+
+// MARK: - Tab Labels
+"Timer" = "计时器";
+"Todo" = "待办";
+"History" = "历史";
+
+// MARK: - Session Types
+"Focus" = "专注";
+"Short Break" = "短休息";
+"Long Break" = "长休息";
+
+// MARK: - Timer View
+"Start" = "开始";
+"Pause" = "暂停";
+"Resume" = "继续";
+"Stop" = "停止";
+"Skip" = "跳过";
+"Today's Focus" = "今日专注";
+"sessions" = "次";
+"min" = "分钟";
+"Focus Timer" = "专注计时";
+"Session Length" = "本轮时长";
+"Progress" = "进度";
+"Ready" = "准备就绪";
+"Running" = "进行中";
+"Paused" = "已暂停";
+"Pick a session and start when you are ready." = "选择一个时段，准备好后开始。";
+"Stay with the current task until the timer ends." = "保持在当前任务上，直到计时结束。";
+"Timer paused. Resume when you are ready." = "计时已暂停，准备好后继续。";
+
+// MARK: - Session Completion
+"Pomodoro Complete!" = "番茄钟完成！";
+"Short Break Over" = "短休息结束";
+"Long Break Over" = "长休息结束";
+"Which tasks did you complete?" = "完成了哪些任务？";
+"Break is over, ready to focus" = "休息时间已结束，准备继续专注";
+"No pending tasks" = "暂无待办任务";
+"Take a break and relax" = "休息一下，放松身心";
+"Confirm" = "确认";
+
+// MARK: - Todo View
+"Add new task..." = "添加新任务...";
+"Edit" = "编辑";
+"Add Sub-item" = "添加子项";
+"Expand Sub-items" = "展开子项";
+"Collapse Sub-items" = "折叠子项";
+"Pin" = "置顶";
+"Unpin" = "取消置顶";
+"Delete" = "删除";
+"Drag to reorder" = "拖动排序";
+"In Progress" = "进行中";
+"Pending" = "待办";
+"Tasks" = "任务";
+"Plan your focus work and break tasks into clear steps." = "规划专注任务，并拆成清晰步骤。";
+"Task Details" = "任务详情";
+"Title" = "标题";
+"Notes" = "备注";
+"No tasks yet" = "暂无任务";
+"Add a task above to plan your next focus session." = "在上方添加任务，规划下一次专注。";
+"Untitled task" = "未命名任务";
+"Pinned" = "已置顶";
+"subtasks" = "个子项";
+"Priority %d" = "优先级 %d";
+
+// MARK: - History View
+"Statistics" = "统计";
+"Time Range" = "时间范围";
+"Today" = "今天";
+"This Week" = "本周";
+"This Month" = "本月";
+"All Time" = "全部";
+"Focus Sessions" = "专注次数";
+"Total Focus Time" = "专注时长";
+"Average Session" = "平均时长";
+"Completed" = "已完成";
+"Incomplete" = "(未完成)";
+"No records yet" = "暂无记录";
+"Focus Distribution" = "专注分布";
+"Daily Trend" = "每日趋势";
+"Focus History" = "专注历史";
+"Review completed sessions and recent momentum." = "回顾已完成的专注记录和近期状态。";
+"Sessions" = "记录";
+"Completed focus sessions will appear here." = "完成的专注记录会显示在这里。";
+"Calendar" = "日历";
+"No sessions on this date" = "这一天暂无记录";
+"Pick another date or time range to review completed sessions." = "选择其他日期或时间范围查看完成记录。";
+"Completed Tasks" = "完成任务";
+
+// MARK: - Settings
+"Settings" = "设置";
+"Language" = "语言";
+"Chinese (Simplified)" = "简体中文";
+"English" = "English";
+"Timer Settings" = "计时器设置";
+"Focus Duration (min)" = "专注时长（分钟）";
+"Short Break Duration (min)" = "短休息时长（分钟）";
+"Long Break Duration (min)" = "长休息时长（分钟）";
+"Long Break Every N Sessions" = "每 N 次专注后长休息";
+"Auto-start Focus After Break" = "休息后自动开始专注";
+"Auto-start Break After Focus" = "专注后自动开始休息";
+"Data" = "数据";
+"Storage Directory" = "存储目录";
+"Change Directory" = "更改目录";
+"iCloud Drive Sync" = "iCloud Drive 同步";
+"Sync Enabled" = "同步已启用";
+"Sync Disabled" = "同步未启用";
+"About" = "关于";
+"Version" = "版本";
+"Keyboard Shortcuts" = "快捷键";
+"Global Toggle Shortcut" = "全局切换快捷键";
+"Click to record" = "点击录制";
+"Tune the timer, language, and sync location." = "调整计时、语言和同步位置。";
+"Change" = "更改";
+
+// MARK: - Notifications
+"Focus session complete!" = "专注时段完成！";
+"Short break is over!" = "短休息结束！";
+"Long break is over!" = "长休息结束！";
+"Time to focus!" = "该专注了！";
+"FlowOSApple" = "FlowOSApple";
+
+// MARK: - Directory Authorization
+"Select Data Storage Directory" = "选择数据存储目录";
+"Please select a directory to store FlowOSApple data. We recommend choosing a folder in iCloud Drive for multi-device sync." = "请选择一个目录来存储 FlowOSApple 的数据。推荐选择 iCloud Drive 中的文件夹以实现多设备同步。";
+"Select" = "选择";
+"Data directory is not authorized" = "数据目录未授权";
+"Encoding failed" = "编码失败";
+"File not found" = "文件不存在";
+"Storage directory updated." = "存储目录已更新。";
+"Migrated data files:" = "已迁移数据文件：";
+"Kept existing files in the new directory:" = "已保留新目录中的现有文件：";
+"No existing data files needed to be migrated." = "没有需要迁移的已有数据文件。";
+"Could not change the storage directory." = "无法更改存储目录。";
+"OK" = "确定";
+
+// MARK: - Menu Bar
+"Open FlowOSApple" = "打开 FlowOSApple";
+"Quit" = "退出";
+
+// MARK: - Time Format
+"%d min %d sec" = "%d 分 %d 秒";
+"%d:%02d" = "%d:%02d";
+
+// MARK: - Additional
+"Focus Duration" = "专注时长";
+"Short Break Duration" = "短休息时长";
+"Long Break Duration" = "长休息时长";
+"Long Break Every" = "长休息间隔";
+"focus sessions" = "次专注";
+"minutes" = "分钟";
+"Data Sync" = "数据同步";
+"Data Storage Directory" = "数据存储目录";
+"Not Set" = "未设置";
+"Change Storage Directory..." = "更改存储目录...";
+"Duration Settings" = "时长设置";
+"Auto-start" = "自动开始";
+"Reset to Default" = "重置为默认设置";
+"7 Days" = "7天";
+"30 Days" = "30天";
+"Total Sessions" = "总 Session";
+"Current Cycle" = "当前周期";
+"Loading..." = "加载中...";

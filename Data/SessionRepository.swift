@@ -2,7 +2,7 @@ import Foundation
 
 /// Session 记录仓库
 ///
-/// 管理已完成的 Session 记录（JSONL 格式）
+/// 管理已完成的 Session 记录，支持 iCloud Drive 同步
 public final class SessionRepository: @unchecked Sendable {
     // MARK: - Singleton
 
@@ -12,11 +12,17 @@ public final class SessionRepository: @unchecked Sendable {
 
     private let fileURL: URL
     private let lock = NSLock()
+    private let iCloudSync = iCloudDriveSyncManager.shared
 
     // MARK: - Init
 
     public init(fileURL: URL = DataFolderManager.sessionsFileURL) {
         self.fileURL = fileURL
+
+        // 监听 iCloud Drive 外部变更
+        iCloudSync.onExternalChange = { [weak self] in
+            self?.handleExternalChange()
+        }
     }
 
     // MARK: - Public API
@@ -26,6 +32,15 @@ public final class SessionRepository: @unchecked Sendable {
         lock.lock()
         defer { lock.unlock() }
 
+        // 优先从 iCloud Drive 加载
+        if iCloudSync.isICloudDriveAvailable {
+            let iCloudRecords = iCloudSync.loadAllSessions()
+            if !iCloudRecords.isEmpty {
+                return iCloudRecords
+            }
+        }
+
+        // 回退到本地文件
         do {
             try DataFolderManager.ensureDirectoriesExist()
             return try JSONLFileStore.readAll(SessionRecord.self, from: fileURL)
@@ -39,8 +54,14 @@ public final class SessionRepository: @unchecked Sendable {
         lock.lock()
         defer { lock.unlock() }
 
+        // 保存到本地
         try DataFolderManager.ensureDirectoriesExist()
         try JSONLFileStore.append(record, to: fileURL)
+
+        // 同步到 iCloud Drive
+        if iCloudSync.isICloudDriveAvailable {
+            try iCloudSync.appendSession(record)
+        }
     }
 
     /// 获取指定日期范围的 Session 记录
@@ -76,7 +97,13 @@ public final class SessionRepository: @unchecked Sendable {
         lock.lock()
         defer { lock.unlock() }
 
+        // 清除本地
         try JSONLFileStore.delete(at: fileURL)
+
+        // 清除 iCloud Drive（写入空数组）
+        if let iCloudURL = iCloudSync.sessionsFileURL {
+            try? "".write(to: iCloudURL, atomically: true, encoding: .utf8)
+        }
     }
 
     /// 导出为 CSV
@@ -95,4 +122,16 @@ public final class SessionRepository: @unchecked Sendable {
 
         return csv
     }
+
+    /// 处理 iCloud Drive 外部变更
+    private func handleExternalChange() {
+        // 通知外部刷新数据
+        NotificationCenter.default.post(name: .sessionRecordsDidChange, object: nil)
+    }
+}
+
+// MARK: - Notification Names
+
+extension Notification.Name {
+    public static let sessionRecordsDidChange = Notification.Name("sessionRecordsDidChange")
 }

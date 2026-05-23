@@ -9,10 +9,20 @@ public final class SettingsViewModel {
     private let settingsRepository: SettingsRepository
 
     /// Timer 设置
-    public var timerSettings: TimerSettings = .default
+    public var timerSettings: TimerSettings = .default {
+        didSet {
+            // 设置变化时自动保存（避免循环）
+            if isLoaded && !isSaving {
+                saveSilently()
+            }
+        }
+    }
 
     /// 是否已加载
     public var isLoaded = false
+
+    /// 是否正在保存（防止循环）
+    private var isSaving = false
 
     // MARK: - Init
 
@@ -27,6 +37,18 @@ public final class SettingsViewModel {
         let flowSettings = settingsRepository.load()
         timerSettings = flowSettings.timer
         isLoaded = true
+    }
+
+    /// 静默保存（不触发 didSet 循环）
+    private func saveSilently() {
+        isSaving = true
+        let clamped = TimerRules.clamped(settings: timerSettings)
+        timerSettings = clamped
+
+        var flowSettings = settingsRepository.load()
+        flowSettings.timer = clamped
+        try? settingsRepository.save(flowSettings)
+        isSaving = false
     }
 
     /// 保存设置
