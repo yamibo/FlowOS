@@ -69,7 +69,8 @@ public final class SettingsRepository: @unchecked Sendable {
 
         var updated = settings
         updated.updatedAt = Date()
-        updated.schemaVersion = 1
+        updated.schemaVersion = FlowOSDataSchema.currentVersion
+        updated.sourceDevice = .current
 
         // 保存到本地
         try JSONFileStore.write(updated, to: fileURL)

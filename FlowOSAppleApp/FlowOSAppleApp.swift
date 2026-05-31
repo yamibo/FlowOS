@@ -1,30 +1,4 @@
 import SwiftUI
-import Darwin
-
-// 全局日志文件路径
-private let logURL: URL = {
-    let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        .appendingPathComponent("FlowOSApple.log")
-    FileManager.default.createFile(atPath: url.path, contents: nil, attributes: nil)
-    return url
-}()
-
-// 自定义日志函数：同时输出到控制台和文件
-func logPrint(_ message: String) {
-    print(message)
-    let timestamp = ISO8601DateFormatter().string(from: Date())
-    let logLine = "[\(timestamp)] \(message)\n"
-    if let data = logLine.data(using: .utf8) {
-        // 追加写入
-        if let fileHandle = try? FileHandle(forWritingTo: logURL) {
-            fileHandle.seekToEndOfFile()
-            fileHandle.write(data)
-            try? fileHandle.close()
-        } else {
-            try? data.write(to: logURL)
-        }
-    }
-}
 
 @main
 struct FlowOSAppleAppApp: App {
@@ -34,7 +8,7 @@ struct FlowOSAppleAppApp: App {
 
     init() {
         logPrint("=== App started at \(Date()) ===")
-        logPrint("Log file location: \(logURL.path)")
+        logPrint("Log file location: \(logFilePath())")
     }
 
     var body: some Scene {

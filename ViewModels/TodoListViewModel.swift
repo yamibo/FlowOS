@@ -67,6 +67,18 @@ public final class TodoListViewModel {
         return subItem
     }
 
+    /// 添加一个空的顶层项目，用于连续录入
+    public func addEmptyTopLevelItem() -> TodoItem {
+        let maxOrder = topLevelItems.map { $0.order }.max() ?? -1
+
+        var item = TodoItem(text: "")
+        item.order = maxOrder + 1
+
+        try? todoRepository.add(item)
+        items.append(item)
+        return item
+    }
+
     /// 将子项目提升到上一级（成为父项目的同级项目）
     public func promoteItem(_ item: TodoItem) -> TodoItem {
         guard let currentParentId = item.parentId else { return item }
@@ -75,6 +87,7 @@ public final class TodoListViewModel {
         guard let currentParent = items.first(where: { $0.id == currentParentId }) else { return item }
 
         var promoted = item
+        touch(&promoted)
         promoted.parentId = currentParent.parentId  // 设置为祖父项目（可能为 nil，成为顶层项目）
 
         // 设置新的 order 值
@@ -114,6 +127,7 @@ public final class TodoListViewModel {
         }
 
         updated.parsePriority()
+        touch(&updated)
 
         try? todoRepository.update(updated)
         if let index = items.firstIndex(where: { $0.id == updated.id }) {
@@ -130,6 +144,7 @@ public final class TodoListViewModel {
         }
 
         var updated = items[index]
+        touch(&updated)
         updated.isCompleted.toggle()
         updated.completedAt = updated.isCompleted ? Date() : nil
 
@@ -158,6 +173,7 @@ public final class TodoListViewModel {
     /// 设置完成百分比
     public func setCompletedPercentage(_ item: TodoItem, percentage: Int) {
         var updated = item
+        touch(&updated)
         updated.completedPercentage = max(0, min(100, percentage))
 
         if updated.completedPercentage == 100 {
@@ -180,6 +196,7 @@ public final class TodoListViewModel {
     /// 切换置顶状态
     public func togglePinned(_ item: TodoItem) {
         var updated = item
+        touch(&updated)
         updated.isPinned.toggle()
 
         try? todoRepository.update(updated)
@@ -273,6 +290,7 @@ public final class TodoListViewModel {
         // 更新 order 值
         for (index, sibling) in remainingSiblings.enumerated() {
             var updated = sibling
+            touch(&updated)
             updated.order = index
             try? todoRepository.update(updated)
             if let itemIndex = items.firstIndex(where: { $0.id == updated.id }) {
@@ -336,6 +354,7 @@ public final class TodoListViewModel {
         // 更新顶层项目的 order 值
         for (index, topItem) in remainingTopItems.enumerated() {
             var updated = topItem
+            touch(&updated)
             updated.order = index
             try? todoRepository.update(updated)
             if let itemIndex = items.firstIndex(where: { $0.id == updated.id }) {
@@ -434,6 +453,7 @@ public final class TodoListViewModel {
         let subs = subItems(of: parentId)
         for sub in subs where sub.isCompleted {
             var updated = sub
+            touch(&updated)
             updated.isCompleted = false
             updated.completedAt = nil
             updated.completedPercentage = 0
@@ -457,6 +477,7 @@ public final class TodoListViewModel {
 
         if allCompleted {
             var updatedParent = parent
+            touch(&updatedParent)
             updatedParent.isCompleted = true
             updatedParent.completedAt = Date()
             updatedParent.completedPercentage = 100
@@ -465,5 +486,11 @@ public final class TodoListViewModel {
                 items[index] = updatedParent
             }
         }
+    }
+
+    private func touch(_ item: inout TodoItem) {
+        item.schemaVersion = FlowOSDataSchema.currentVersion
+        item.updatedAt = Date()
+        item.sourceDevice = .current
     }
 }

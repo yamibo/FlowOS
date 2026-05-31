@@ -2,8 +2,7 @@ import Foundation
 
 /// iCloud Drive 同步管理器
 ///
-/// 使用用户授权的目录同步数据
-/// 在沙盒模式下，需要用户通过 NSOpenPanel 授权目录
+/// 使用用户授权的 iCloud Drive/Files 文件夹同步数据。
 public final class iCloudDriveSyncManager: @unchecked Sendable {
     // MARK: - Singleton
 
@@ -15,24 +14,33 @@ public final class iCloudDriveSyncManager: @unchecked Sendable {
     private let fileManager = FileManager.default
     private let authManager = DirectoryAuthorizationManager.shared
 
-    /// App 数据目录（从授权管理器获取）
+    /// App 数据目录（macOS/iOS 都来自用户授权的文件夹）。
     public var appDataDirectory: URL? {
         authManager.authorizedDirectoryURL
     }
 
     /// Todo 文件 URL
     public var todoFileURL: URL? {
-        appDataDirectory?.appendingPathComponent("todos.json")
+        appDataDirectory?.appendingPathComponent(FlowOSDataFile.todos.rawValue)
     }
 
     /// Settings 文件 URL
     public var settingsFileURL: URL? {
-        appDataDirectory?.appendingPathComponent("settings.json")
+        appDataDirectory?.appendingPathComponent(FlowOSDataFile.settings.rawValue)
     }
 
     /// Sessions 文件 URL
     public var sessionsFileURL: URL? {
-        appDataDirectory?.appendingPathComponent("sessions.jsonl")
+        appDataDirectory?.appendingPathComponent(FlowOSDataFile.sessions.rawValue)
+    }
+
+    public var activeTimerFileURL: URL? {
+        appDataDirectory?.appendingPathComponent(FlowOSDataFile.activeTimer.rawValue)
+    }
+
+    public var hasSessionsFile: Bool {
+        guard let url = sessionsFileURL else { return false }
+        return fileManager.fileExists(atPath: url.path)
     }
 
     /// 外部变更回调
@@ -48,7 +56,7 @@ public final class iCloudDriveSyncManager: @unchecked Sendable {
 
     /// 检查是否有授权目录
     public var isICloudDriveAvailable: Bool {
-        authManager.hasAuthorizedDirectory
+        appDataDirectory != nil
     }
 
     /// 请求用户授权目录
@@ -63,8 +71,8 @@ public final class iCloudDriveSyncManager: @unchecked Sendable {
             return nil
         }
 
-        let result = try migrateDataFiles(from: oldDirectory, to: newDirectory)
         try authManager.authorizeDirectory(newDirectory)
+        let result = try migrateDataFiles(from: oldDirectory, to: newDirectory)
         SettingsRepository.shared.clearCache()
         TodoRepository.shared.clearCache()
         NotificationCenter.default.post(name: .dataDirectoryDidChange, object: result)
@@ -73,7 +81,12 @@ public final class iCloudDriveSyncManager: @unchecked Sendable {
 
     /// 确保目录已授权
     public func ensureAuthorized() async -> URL? {
-        await authManager.ensureAuthorized()
+        if let dir = appDataDirectory {
+            try? ensureDirectoryExists()
+            return dir
+        }
+
+        return await authManager.ensureAuthorized()
     }
 
     /// 确保数据目录存在
@@ -97,7 +110,12 @@ public final class iCloudDriveSyncManager: @unchecked Sendable {
             return DirectoryChangeResult(directory: destination, copiedFiles: [], keptExistingFiles: [], skippedFiles: [])
         }
 
-        let dataFileNames = ["todos.json", "settings.json", "sessions.jsonl"]
+        let dataFileNames = [
+            FlowOSDataFile.todos.rawValue,
+            FlowOSDataFile.settings.rawValue,
+            FlowOSDataFile.sessions.rawValue,
+            FlowOSDataFile.activeTimer.rawValue
+        ]
         var copied: [String] = []
         var keptExisting: [String] = []
         var skipped: [String] = []
@@ -148,6 +166,7 @@ public final class iCloudDriveSyncManager: @unchecked Sendable {
         defer { lock.unlock() }
 
         guard fileManager.fileExists(atPath: url.path) else {
+            try? fileManager.startDownloadingUbiquitousItem(at: url)
             return nil
         }
 

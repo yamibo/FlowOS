@@ -33,11 +33,9 @@ public final class SessionRepository: @unchecked Sendable {
         defer { lock.unlock() }
 
         // 优先从 iCloud Drive 加载
-        if iCloudSync.isICloudDriveAvailable {
+        if iCloudSync.isICloudDriveAvailable && iCloudSync.hasSessionsFile {
             let iCloudRecords = iCloudSync.loadAllSessions()
-            if !iCloudRecords.isEmpty {
-                return iCloudRecords
-            }
+            return iCloudRecords
         }
 
         // 回退到本地文件

@@ -12,6 +12,7 @@ public final class ActiveTimerRepository: @unchecked Sendable {
 
     private let fileURL: URL
     private let lock = NSLock()
+    private let iCloudSync = iCloudDriveSyncManager.shared
 
     // MARK: - Init
 
@@ -28,6 +29,11 @@ public final class ActiveTimerRepository: @unchecked Sendable {
 
         do {
             try DataFolderManager.ensureDirectoriesExist()
+            if let iCloudURL = iCloudSync.activeTimerFileURL,
+               let state = iCloudSync.read(ActiveTimerState.self, from: iCloudURL) {
+                return state
+            }
+
             return try JSONFileStore.read(ActiveTimerState.self, from: fileURL)
         } catch {
             return nil
@@ -43,9 +49,14 @@ public final class ActiveTimerRepository: @unchecked Sendable {
 
         var updated = state
         updated.updatedAt = Date()
-        updated.schemaVersion = 1
+        updated.schemaVersion = FlowOSDataSchema.currentVersion
+        updated.sourceDevice = .current
 
         try JSONFileStore.write(updated, to: fileURL)
+
+        if let iCloudURL = iCloudSync.activeTimerFileURL {
+            try? iCloudSync.write(updated, to: iCloudURL)
+        }
     }
 
     /// 清除活动计时器状态
@@ -54,5 +65,8 @@ public final class ActiveTimerRepository: @unchecked Sendable {
         defer { lock.unlock() }
 
         try JSONFileStore.delete(at: fileURL)
+        if let iCloudURL = iCloudSync.activeTimerFileURL {
+            try? JSONFileStore.delete(at: iCloudURL)
+        }
     }
 }

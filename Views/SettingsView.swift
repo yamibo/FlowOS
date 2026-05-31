@@ -12,12 +12,13 @@ public struct SettingsView: View {
     // MARK: - Body
 
     public var body: some View {
+        let _ = languageVersion
         FlowOSPage {
             VStack(alignment: .leading, spacing: 16) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(L("Settings", defaultValue: "设置"))
                         .font(.title2.bold())
-                    Text(L("Tune the timer, language, and sync location.", defaultValue: "调整计时、语言和同步位置。"))
+                    Text(L("Tune the timer, language, and iCloud sync.", defaultValue: "调整计时、语言和 iCloud 同步。"))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
@@ -61,6 +62,10 @@ public struct SettingsView: View {
                             }
                             .disabled(isChangingDirectory)
                         }
+
+                        Text(syncStatusMessage)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
                     }
                 }
 
@@ -184,7 +189,21 @@ public struct SettingsView: View {
         if let dir = iCloudDriveSyncManager.shared.appDataDirectory {
             return dir.path
         }
-        return L("Not Set", defaultValue: "未设置")
+        return DataFolderManager.appDataURL.path
+    }
+
+    private var syncStatusMessage: String {
+        if iCloudDriveSyncManager.shared.isICloudDriveAvailable {
+            return L(
+                "Using the selected iCloud Drive/Files folder. Select the same folder on macOS and iOS to sync FlowOS data.",
+                defaultValue: "正在使用已选择的 iCloud Drive/文件文件夹。在 macOS 和 iOS 上选择同一个文件夹即可同步 FlowOS 数据。"
+            )
+        }
+
+        return L(
+            "Choose a folder in iCloud Drive/Files to sync with your other FlowOS apps. Until then, FlowOS uses local app data.",
+            defaultValue: "选择 iCloud Drive/文件中的文件夹即可和其他 FlowOS App 同步。在选择之前，FlowOS 会使用本地 App 数据。"
+        )
     }
 
     private func sectionTitle(_ title: String, icon: String) -> some View {

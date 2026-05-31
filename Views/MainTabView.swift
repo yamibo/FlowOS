@@ -8,11 +8,13 @@ public struct MainTabView: View {
     @State private var selectedTab = 0
     @State private var isReady = false
     @State private var timerViewModel: TimerViewModel?
+    @State private var settingsViewModel = SettingsViewModel(settingsRepository: .shared)
     @Environment(\.languageVersion) private var languageVersion
 
     // MARK: - Body
 
     public var body: some View {
+        let _ = languageVersion
         Group {
             if isReady {
                 contentView
@@ -61,6 +63,12 @@ public struct MainTabView: View {
                     Label(L("History", defaultValue: "历史"), systemImage: "chart.bar.fill")
                 }
                 .tag(2)
+
+            SettingsView(viewModel: settingsViewModel)
+                .tabItem {
+                    Label(L("Settings", defaultValue: "设置"), systemImage: "gearshape.fill")
+                }
+                .tag(3)
         }
         .background(FlowOSDesign.pageBackground)
         .sheet(isPresented: $coordinator.showSessionCompletion) {
@@ -90,9 +98,15 @@ public struct MainTabView: View {
 }
 
 enum FlowOSDesign {
+    #if os(macOS)
     static let pageBackground = Color(nsColor: .windowBackgroundColor)
     static let panelBackground = Color(nsColor: .controlBackgroundColor)
     static let elevatedBackground = Color(nsColor: .textBackgroundColor)
+    #else
+    static let pageBackground = Color(uiColor: .systemGroupedBackground)
+    static let panelBackground = Color(uiColor: .secondarySystemGroupedBackground)
+    static let elevatedBackground = Color(uiColor: .systemBackground)
+    #endif
     static let hairline = Color.secondary.opacity(0.12)
 
     static func sessionColor(_ type: SessionType) -> Color {
@@ -115,11 +129,27 @@ struct FlowOSPage<Content: View>: View {
         ScrollView {
             content
                 .frame(maxWidth: 900)
-                .padding(.horizontal, 28)
-                .padding(.vertical, 24)
+                .padding(.horizontal, horizontalPadding)
+                .padding(.vertical, verticalPadding)
                 .frame(maxWidth: .infinity)
         }
         .background(FlowOSDesign.pageBackground)
+    }
+
+    private var horizontalPadding: CGFloat {
+        #if os(iOS)
+        16
+        #else
+        28
+        #endif
+    }
+
+    private var verticalPadding: CGFloat {
+        #if os(iOS)
+        18
+        #else
+        24
+        #endif
     }
 }
 
@@ -150,21 +180,21 @@ struct FlowOSMetric: View {
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: icon)
-                .font(.system(size: 16, weight: .semibold))
+                .font(.system(size: iconSize, weight: .semibold))
                 .foregroundStyle(color)
-                .frame(width: 30, height: 30)
+                .frame(width: iconFrame, height: iconFrame)
                 .background(color.opacity(0.12), in: RoundedRectangle(cornerRadius: 7))
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(value)
-                    .font(.system(size: 19, weight: .semibold, design: .rounded))
+                    .font(.system(size: valueFontSize, weight: .semibold, design: .rounded))
                     .monospacedDigit()
                     .lineLimit(1)
-                    .minimumScaleFactor(0.8)
+                    .minimumScaleFactor(0.72)
                 Text(title)
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                    .lineLimit(1)
+                    .lineLimit(2)
             }
 
             Spacer(minLength: 0)
@@ -176,6 +206,30 @@ struct FlowOSMetric: View {
             RoundedRectangle(cornerRadius: 8)
                 .strokeBorder(FlowOSDesign.hairline, lineWidth: 1)
         }
+    }
+
+    private var iconSize: CGFloat {
+        #if os(iOS)
+        15
+        #else
+        16
+        #endif
+    }
+
+    private var iconFrame: CGFloat {
+        #if os(iOS)
+        28
+        #else
+        30
+        #endif
+    }
+
+    private var valueFontSize: CGFloat {
+        #if os(iOS)
+        18
+        #else
+        19
+        #endif
     }
 }
 

@@ -61,7 +61,7 @@ public struct TodoListView: View {
         }
         .padding(.horizontal, 18)
         .padding(.vertical, 14)
-        .background(Color(nsColor: .controlBackgroundColor))
+        .background(FlowOSDesign.panelBackground)
     }
 
     private func createTaskWithSubItem() {
@@ -210,15 +210,14 @@ struct TodoItemRow: View {
                             .focused($focusedField, equals: item.id)
                             .onSubmit {
                                 if !isCreatingSubItem {
-                                    if item.isSubItem {
-                                        createSiblingSubItem()
-                                    } else {
-                                        finishEditing()
-                                    }
+                                    createSiblingItem()
                                 }
                             }
                             .onAppear {
                                 editText = item.text
+                            }
+                            .onChange(of: editText) { _, newValue in
+                                handleInlineReturn(in: newValue)
                             }
                             .onKeyPress(phases: .down) { keyPress in
                                 guard keyPress.key == .tab else { return .ignored }
@@ -343,9 +342,11 @@ struct TodoItemRow: View {
             RoundedRectangle(cornerRadius: 8)
                 .strokeBorder(Color.secondary.opacity(isHovered ? 0.22 : 0.08), lineWidth: 1)
         }
+        #if os(macOS)
         .onHover { hovering in
             isHovered = hovering
         }
+        #endif
         .contextMenu {
             Button(L("Edit", defaultValue: "编辑")) {
                 viewModel.startEditing(item)
@@ -456,7 +457,7 @@ struct TodoItemRow: View {
 
     private var rowBackground: Color {
         if item.isCompleted {
-            return Color(nsColor: .controlBackgroundColor).opacity(0.55)
+            return FlowOSDesign.panelBackground.opacity(0.55)
         }
         if item.isPinned {
             return Color.orange.opacity(isHovered ? 0.16 : 0.10)
@@ -464,7 +465,7 @@ struct TodoItemRow: View {
         if item.priority > 0 {
             return priorityColor.opacity(isHovered ? 0.12 : 0.07)
         }
-        return Color(nsColor: .controlBackgroundColor).opacity(isHovered ? 0.95 : 0.72)
+        return FlowOSDesign.panelBackground.opacity(isHovered ? 0.95 : 0.72)
     }
 
     private var statusText: String {
@@ -531,6 +532,15 @@ struct TodoItemRow: View {
         viewModel.finishEditing(updated)
     }
 
+    private func handleInlineReturn(in text: String) {
+        guard text.contains(where: \.isNewline), !isCreatingSubItem else { return }
+        editText = text
+            .components(separatedBy: .newlines)
+            .joined(separator: " ")
+            .trimmingCharacters(in: .whitespaces)
+        createSiblingItem()
+    }
+
     private func createNextLevelSubItem() {
         var updated = item
         updated.text = editText
@@ -551,7 +561,12 @@ struct TodoItemRow: View {
         }
     }
 
-    private func createSiblingSubItem() {
+    private func createSiblingItem() {
+        guard !editText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            finishEditing()
+            return
+        }
+
         var updated = item
         updated.text = editText
         try? viewModel.todoRepository.update(updated)
@@ -561,8 +576,12 @@ struct TodoItemRow: View {
 
         isCreatingSubItem = true
 
-        guard let parentId = item.parentId else { return }
-        let siblingItem = viewModel.addSubItem(to: parentId)
+        let siblingItem: TodoItem
+        if let parentId = item.parentId {
+            siblingItem = viewModel.addSubItem(to: parentId)
+        } else {
+            siblingItem = viewModel.addEmptyTopLevelItem()
+        }
         viewModel.startEditing(siblingItem)
         editText = ""
 
@@ -600,6 +619,9 @@ struct TodoDetailView: View {
     let itemId: UUID
     @Bindable var viewModel: TodoListViewModel
     @Environment(\.dismiss) private var dismiss
+    #if os(iOS)
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    #endif
     @State private var titleText = ""
     @State private var noteText = ""
 
@@ -650,7 +672,9 @@ struct TodoDetailView: View {
             Spacer()
         }
         .padding(20)
-        .frame(width: 460, height: 360)
+        .frame(width: modalWidth, height: modalHeight)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(.horizontal, modalOuterPadding)
         .background(FlowOSDesign.panelBackground)
         .onAppear {
             titleText = item?.text ?? ""
@@ -666,6 +690,30 @@ struct TodoDetailView: View {
         updated.text = titleText.trimmingCharacters(in: .whitespacesAndNewlines)
         updated.note = noteText.trimmingCharacters(in: .whitespacesAndNewlines)
         viewModel.finishEditing(updated)
+    }
+
+    private var modalWidth: CGFloat? {
+        #if os(iOS)
+        nil
+        #else
+        460
+        #endif
+    }
+
+    private var modalHeight: CGFloat? {
+        #if os(iOS)
+        nil
+        #else
+        360
+        #endif
+    }
+
+    private var modalOuterPadding: CGFloat {
+        #if os(iOS)
+        horizontalSizeClass == .compact ? 16 : 24
+        #else
+        0
+        #endif
     }
 }
 

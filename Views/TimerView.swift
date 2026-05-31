@@ -3,6 +3,9 @@ import SwiftUI
 public struct TimerView: View {
     @Bindable var viewModel: TimerViewModel
     @Environment(\.languageVersion) private var languageVersion
+    #if os(iOS)
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    #endif
 
     public var body: some View {
         FlowOSPage {
@@ -72,92 +75,117 @@ public struct TimerView: View {
     }
 
     private var timerDisplay: some View {
-        HStack(spacing: 28) {
-            ZStack {
-                Circle()
-                    .stroke(viewModel.progressColor.opacity(0.16), lineWidth: 14)
-                    .frame(width: 220, height: 220)
-
-                Circle()
-                    .trim(from: 0, to: viewModel.progress)
-                    .stroke(viewModel.progressColor, style: StrokeStyle(lineWidth: 14, lineCap: .round))
-                    .frame(width: 220, height: 220)
-                    .rotationEffect(.degrees(-90))
-                    .animation(.easeOut(duration: 0.25), value: viewModel.progress)
-
-                VStack(spacing: 8) {
-                    Text(viewModel.formattedTime)
-                        .font(.system(size: 50, weight: .bold, design: .rounded))
-                        .monospacedDigit()
-                    Text(statusText)
-                        .font(.caption.weight(.medium))
-                        .foregroundStyle(.secondary)
+        Group {
+            if isCompactLayout {
+                VStack(spacing: 18) {
+                    timerRing(size: 216)
+                    LazyVGrid(columns: compactColumns, spacing: 12) {
+                        sessionMetricCards
+                    }
                 }
-            }
+            } else {
+                HStack(spacing: 28) {
+                    timerRing(size: 220)
 
-            VStack(alignment: .leading, spacing: 12) {
-                FlowOSMetric(
-                    title: L("Session Length", defaultValue: "本轮时长"),
-                    value: sessionLengthText,
-                    icon: "timer",
-                    color: viewModel.progressColor
-                )
-
-                FlowOSMetric(
-                    title: L("Progress", defaultValue: "进度"),
-                    value: "\(Int(viewModel.progress * 100))%",
-                    icon: "chart.line.uptrend.xyaxis",
-                    color: .blue
-                )
+                    VStack(alignment: .leading, spacing: 12) {
+                        sessionMetricCards
+                    }
+                }
             }
         }
         .frame(maxWidth: .infinity)
     }
 
+    @ViewBuilder
     private var controlButtons: some View {
+        if isCompactLayout {
+            compactControlButtons
+        } else {
+            regularControlButtons
+        }
+    }
+
+    private var regularControlButtons: some View {
         HStack(spacing: 12) {
-            Button {
-                switch viewModel.status {
-                case .idle:
-                    viewModel.start()
-                case .running:
-                    viewModel.pause()
-                case .paused:
-                    viewModel.resume()
-                }
-            } label: {
-                Label(primaryButtonTitle, systemImage: viewModel.status == .running ? "pause.fill" : "play.fill")
-                    .font(.system(size: 14, weight: .semibold))
-                    .frame(minWidth: 132)
-                    .padding(.vertical, 10)
-            }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.large)
+            primaryControlButton
+                .frame(minWidth: 132)
 
             if viewModel.status != .idle {
-                Button {
-                    viewModel.stop()
-                } label: {
-                    Label(L("Stop", defaultValue: "停止"), systemImage: "stop.fill")
-                }
-                .buttonStyle(.bordered)
-                .controlSize(.large)
+                stopControlButton
             }
 
             if viewModel.status != .idle {
-                Button {
-                    viewModel.skip()
-                } label: {
-                    Label(L("Skip", defaultValue: "跳过"), systemImage: "forward.fill")
-                }
-                .buttonStyle(.bordered)
-                .controlSize(.large)
+                skipControlButton
             }
         }
     }
 
+    private var compactControlButtons: some View {
+        VStack(spacing: 10) {
+            primaryControlButton
+                .frame(maxWidth: .infinity)
+
+            if viewModel.status != .idle {
+                HStack(spacing: 10) {
+                    stopControlButton
+                        .frame(maxWidth: .infinity)
+                    skipControlButton
+                        .frame(maxWidth: .infinity)
+                }
+            }
+        }
+    }
+
+    private var primaryControlButton: some View {
+        Button {
+            switch viewModel.status {
+            case .idle:
+                viewModel.start()
+            case .running:
+                viewModel.pause()
+            case .paused:
+                viewModel.resume()
+            }
+        } label: {
+            controlLabel(primaryButtonTitle, icon: viewModel.status == .running ? "pause.fill" : "play.fill")
+        }
+        .buttonStyle(.borderedProminent)
+        .controlSize(.large)
+    }
+
+    private var stopControlButton: some View {
+        Button {
+            viewModel.stop()
+        } label: {
+            controlLabel(L("Stop", defaultValue: "停止"), icon: "stop.fill")
+        }
+        .buttonStyle(.bordered)
+        .controlSize(.large)
+    }
+
+    private var skipControlButton: some View {
+        Button {
+            viewModel.skip()
+        } label: {
+            controlLabel(L("Skip", defaultValue: "跳过"), icon: "forward.fill")
+        }
+        .buttonStyle(.bordered)
+        .controlSize(.large)
+    }
+
+    private func controlLabel(_ title: String, icon: String) -> some View {
+        Label(title, systemImage: icon)
+            .labelStyle(.titleAndIcon)
+            .font(.system(size: 14, weight: .semibold))
+            .lineLimit(1)
+            .minimumScaleFactor(0.82)
+            .frame(maxWidth: isCompactLayout ? .infinity : nil, minHeight: 24)
+            .padding(.vertical, 10)
+            .padding(.horizontal, isCompactLayout ? 6 : 12)
+    }
+
     private var todayStatsView: some View {
-        HStack(spacing: 12) {
+        LazyVGrid(columns: statsColumns, spacing: 12) {
             FlowOSMetric(
                 title: L("Focus Sessions", defaultValue: "专注次数"),
                 value: "\(viewModel.todayStats.focusSessions)",
@@ -179,6 +207,72 @@ public struct TimerView: View {
                 color: .green
             )
         }
+    }
+
+    private func timerRing(size: CGFloat) -> some View {
+        ZStack {
+            Circle()
+                .stroke(viewModel.progressColor.opacity(0.16), lineWidth: 14)
+                .frame(width: size, height: size)
+
+            Circle()
+                .trim(from: 0, to: viewModel.progress)
+                .stroke(viewModel.progressColor, style: StrokeStyle(lineWidth: 14, lineCap: .round))
+                .frame(width: size, height: size)
+                .rotationEffect(.degrees(-90))
+                .animation(.easeOut(duration: 0.25), value: viewModel.progress)
+
+            VStack(spacing: 8) {
+                Text(viewModel.formattedTime)
+                    .font(.system(size: isCompactLayout ? 46 : 50, weight: .bold, design: .rounded))
+                    .monospacedDigit()
+                    .minimumScaleFactor(0.8)
+                Text(statusText)
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var sessionMetricCards: some View {
+        FlowOSMetric(
+            title: L("Session Length", defaultValue: "本轮时长"),
+            value: sessionLengthText,
+            icon: "timer",
+            color: viewModel.progressColor
+        )
+
+        FlowOSMetric(
+            title: L("Progress", defaultValue: "进度"),
+            value: "\(Int(viewModel.progress * 100))%",
+            icon: "chart.line.uptrend.xyaxis",
+            color: .blue
+        )
+    }
+
+    private var compactColumns: [GridItem] {
+        [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)]
+    }
+
+    private var statsColumns: [GridItem] {
+        if isCompactLayout {
+            return compactColumns
+        }
+
+        return [
+            GridItem(.flexible(), spacing: 12),
+            GridItem(.flexible(), spacing: 12),
+            GridItem(.flexible(), spacing: 12)
+        ]
+    }
+
+    private var isCompactLayout: Bool {
+        #if os(iOS)
+        horizontalSizeClass == .compact
+        #else
+        false
+        #endif
     }
 
     private func sessionButtonBackground(for type: SessionType) -> Color {

@@ -6,6 +6,9 @@ public struct SessionCompletionView: View {
 
     @Bindable var todoViewModel: TodoListViewModel
     @Environment(\.dismiss) private var dismiss
+    #if os(iOS)
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    #endif
 
     @State private var selectedTasks: Set<UUID> = []
     @State private var taskProgress: [UUID: Int] = [:]
@@ -88,7 +91,9 @@ public struct SessionCompletionView: View {
             .padding(16)
         }
         .background(FlowOSDesign.panelBackground)
-        .frame(width: 460, height: 560)
+        .frame(width: modalWidth, height: modalHeight)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(.horizontal, modalOuterPadding)
         .onAppear {
             // 默认展开所有有子项的父项
             for task in todoViewModel.uncompletedTasks {
@@ -141,6 +146,30 @@ public struct SessionCompletionView: View {
         case .focus: return L("No pending tasks", defaultValue: "暂无待办任务")
         case .shortBreak, .longBreak: return L("Take a break and relax", defaultValue: "休息一下，放松身心")
         }
+    }
+
+    private var modalWidth: CGFloat? {
+        #if os(iOS)
+        nil
+        #else
+        460
+        #endif
+    }
+
+    private var modalHeight: CGFloat? {
+        #if os(iOS)
+        nil
+        #else
+        560
+        #endif
+    }
+
+    private var modalOuterPadding: CGFloat {
+        #if os(iOS)
+        horizontalSizeClass == .compact ? 16 : 24
+        #else
+        0
+        #endif
     }
 
     // MARK: - Init

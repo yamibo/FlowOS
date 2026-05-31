@@ -111,7 +111,10 @@
 "Global Toggle Shortcut" = "全局切换快捷键";
 "Click to record" = "点击录制";
 "Tune the timer, language, and sync location." = "调整计时、语言和同步位置。";
+"Tune the timer, language, and iCloud sync." = "调整计时、语言和 iCloud 同步。";
 "Change" = "更改";
+"Using the selected iCloud Drive/Files folder. Select the same folder on macOS and iOS to sync FlowOS data." = "正在使用已选择的 iCloud Drive/文件文件夹。在 macOS 和 iOS 上选择同一个文件夹即可同步 FlowOS 数据。";
+"Choose a folder in iCloud Drive/Files to sync with your other FlowOS apps. Until then, FlowOS uses local app data." = "选择 iCloud Drive/文件中的文件夹即可和其他 FlowOS App 同步。在选择之前，FlowOS 会使用本地 App 数据。";
 
 // MARK: - Notifications
 "Focus session complete!" = "专注时段完成！";

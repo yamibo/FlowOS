@@ -24,7 +24,7 @@ public final class TodoRepository: @unchecked Sendable {
         if let url = fileURL {
             self.fileURL = url
         } else {
-            self.fileURL = DataFolderManager.appDataURL.appendingPathComponent("todos.json")
+            self.fileURL = DataFolderManager.todosFileURL
         }
 
         // 监听 iCloud Drive 外部变更
@@ -76,8 +76,18 @@ public final class TodoRepository: @unchecked Sendable {
 
         // 清理超过保留天数的已完成任务
         var updated = list
-        updated.items = filterExpiredCompletedItems(updated.items)
-        updated.updatedAt = Date()
+        let now = Date()
+        updated.schemaVersion = FlowOSDataSchema.currentVersion
+        updated.items = filterExpiredCompletedItems(updated.items).map { item in
+            var normalized = item
+            normalized.schemaVersion = FlowOSDataSchema.currentVersion
+            normalized.updatedAt = normalized.updatedAt ?? now
+            normalized.sourceDevice = normalized.sourceDevice ?? .current
+            return normalized
+        }
+        updated.createdAt = updated.createdAt ?? now
+        updated.updatedAt = now
+        updated.sourceDevice = .current
 
         // 保存到本地
         try JSONFileStore.write(updated, to: fileURL)

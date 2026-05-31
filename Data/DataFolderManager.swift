@@ -29,22 +29,27 @@ public enum DataFolderManager {
 
     /// Session 记录文件路径
     public static var sessionsFileURL: URL {
-        appDataURL.appendingPathComponent("sessions.jsonl")
+        appDataURL.appendingPathComponent(FlowOSDataFile.sessions.rawValue)
     }
 
     /// 设置文件路径
     public static var settingsFileURL: URL {
-        appDataURL.appendingPathComponent("settings.json")
+        appDataURL.appendingPathComponent(FlowOSDataFile.settings.rawValue)
     }
 
     /// 活动计时器状态文件路径
     public static var activeTimerFileURL: URL {
-        appDataURL.appendingPathComponent("active_timer.json")
+        appDataURL.appendingPathComponent(FlowOSDataFile.activeTimer.rawValue)
+    }
+
+    /// Todo 文件路径
+    public static var todosFileURL: URL {
+        appDataURL.appendingPathComponent(FlowOSDataFile.todos.rawValue)
     }
 
     /// Widget 数据文件路径（App Group）
     public static var widgetDataFileURL: URL? {
-        sharedURL?.appendingPathComponent("widget_data.json")
+        sharedURL?.appendingPathComponent(FlowOSDataFile.widgetData.rawValue)
     }
 
     // MARK: - Setup

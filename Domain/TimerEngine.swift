@@ -51,7 +51,7 @@ public final class TimerEngine {
         let targetEnd = now.addingTimeInterval(TimeInterval(duration))
 
         state = ActiveTimerState(
-            schemaVersion: 1,
+            schemaVersion: FlowOSDataSchema.currentVersion,
             updatedAt: now,
             timerId: UUID(),
             sessionType: sessionType,
@@ -62,7 +62,8 @@ public final class TimerEngine {
             remainingSecondsWhenPaused: nil,
             durationSeconds: duration,
             sessionsCompletedInCycle: state.sessionsCompletedInCycle,
-            deviceName: Host.current().localizedName
+            deviceName: DeviceInfo.current.name,
+            sourceDevice: .current
         )
 
         isRunning = true
@@ -88,7 +89,8 @@ public final class TimerEngine {
             remainingSecondsWhenPaused: remaining,
             durationSeconds: state.durationSeconds,
             sessionsCompletedInCycle: state.sessionsCompletedInCycle,
-            deviceName: state.deviceName
+            deviceName: state.deviceName,
+            sourceDevice: state.sourceDevice
         )
 
         isRunning = false
@@ -115,7 +117,8 @@ public final class TimerEngine {
             remainingSecondsWhenPaused: nil,
             durationSeconds: state.durationSeconds,
             sessionsCompletedInCycle: state.sessionsCompletedInCycle,
-            deviceName: state.deviceName
+            deviceName: state.deviceName,
+            sourceDevice: state.sourceDevice
         )
 
         isRunning = true
@@ -133,7 +136,7 @@ public final class TimerEngine {
         stopTimer()
 
         state = ActiveTimerState(
-            schemaVersion: 1,
+            schemaVersion: FlowOSDataSchema.currentVersion,
             updatedAt: Date(),
             timerId: nil,
             sessionType: state.sessionType,
@@ -144,7 +147,8 @@ public final class TimerEngine {
             remainingSecondsWhenPaused: nil,
             durationSeconds: state.durationSeconds,
             sessionsCompletedInCycle: state.sessionsCompletedInCycle,
-            deviceName: nil
+            deviceName: nil,
+            sourceDevice: .current
         )
 
         isRunning = false
@@ -171,7 +175,7 @@ public final class TimerEngine {
 
     /// 计算已运行的时长（秒）
     private func calculateElapsedSeconds() -> Int {
-        guard let startedAt = state.startedAt else { return 0 }
+        guard state.startedAt != nil else { return 0 }
         let elapsed = state.durationSeconds - remainingSeconds
         return max(0, elapsed)
     }
@@ -202,7 +206,7 @@ public final class TimerEngine {
         }
 
         state = ActiveTimerState(
-            schemaVersion: 1,
+            schemaVersion: FlowOSDataSchema.currentVersion,
             updatedAt: Date(),
             timerId: nil,
             sessionType: state.sessionType,
@@ -213,7 +217,8 @@ public final class TimerEngine {
             remainingSecondsWhenPaused: nil,
             durationSeconds: state.durationSeconds,
             sessionsCompletedInCycle: newSessionsCompleted,
-            deviceName: nil
+            deviceName: nil,
+            sourceDevice: .current
         )
 
         isRunning = false
@@ -291,7 +296,7 @@ public final class TimerEngine {
         let newDuration = settings.durationSeconds(for: nextType)
 
         state = ActiveTimerState(
-            schemaVersion: 1,
+            schemaVersion: FlowOSDataSchema.currentVersion,
             updatedAt: Date(),
             timerId: nil,
             sessionType: nextType,
@@ -302,7 +307,8 @@ public final class TimerEngine {
             remainingSecondsWhenPaused: nil,
             durationSeconds: newDuration,
             sessionsCompletedInCycle: newSessionsCompleted,
-            deviceName: nil
+            deviceName: nil,
+            sourceDevice: .current
         )
 
         notifyTick()

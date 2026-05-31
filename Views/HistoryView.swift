@@ -9,6 +9,9 @@ public struct HistoryView: View {
     @State private var selectedRange: TimeRange = .today
     @State private var selectedCalendarDate = Date()
     @Environment(\.languageVersion) private var languageVersion
+    #if os(iOS)
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    #endif
 
     // MARK: - Body
 
@@ -53,7 +56,7 @@ public struct HistoryView: View {
     }
 
     private var statsCards: some View {
-        HStack(spacing: 12) {
+        LazyVGrid(columns: statsColumns, spacing: 12) {
             FlowOSMetric(
                 title: L("Focus Sessions", defaultValue: "专注次数"),
                 value: "\(viewModel.stats.focusSessions)",
@@ -79,22 +82,58 @@ public struct HistoryView: View {
 
     private var calendarStrip: some View {
         FlowOSPanel {
-            HStack(spacing: 12) {
-                DatePicker(
-                    L("Calendar", defaultValue: "日历"),
-                    selection: $selectedCalendarDate,
-                    displayedComponents: [.date]
-                )
-                .datePickerStyle(.compact)
-
-                Spacer()
-
-                Text(selectedDateSummary)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
+            Group {
+                if isCompactLayout {
+                    VStack(alignment: .leading, spacing: 10) {
+                        calendarPicker
+                        selectedDateSummaryView
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                } else {
+                    HStack(spacing: 12) {
+                        calendarPicker
+                        Spacer()
+                        selectedDateSummaryView
+                    }
+                }
             }
         }
+    }
+
+    private var calendarPicker: some View {
+        DatePicker(
+            L("Calendar", defaultValue: "日历"),
+            selection: $selectedCalendarDate,
+            displayedComponents: [.date]
+        )
+        .datePickerStyle(.compact)
+    }
+
+    private var selectedDateSummaryView: some View {
+        Text(selectedDateSummary)
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .lineLimit(1)
+    }
+
+    private var statsColumns: [GridItem] {
+        if isCompactLayout {
+            return [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)]
+        }
+
+        return [
+            GridItem(.flexible(), spacing: 12),
+            GridItem(.flexible(), spacing: 12),
+            GridItem(.flexible(), spacing: 12)
+        ]
+    }
+
+    private var isCompactLayout: Bool {
+        #if os(iOS)
+        horizontalSizeClass == .compact
+        #else
+        false
+        #endif
     }
 
     private var sessionList: some View {

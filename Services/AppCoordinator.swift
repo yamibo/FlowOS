@@ -99,8 +99,10 @@ public final class AppCoordinator {
         // 加载今日统计
         todayStats = sessionRepository.getTodayStats()
 
-        // 请求通知权限
+        #if os(macOS)
+        // macOS keeps the menu-bar reminder behavior ready from launch.
         _ = await notificationService.requestAuthorization()
+        #endif
 
         // 恢复活动计时器状态
         if let savedState = activeTimerRepository.load() {
@@ -237,8 +239,10 @@ public final class AppCoordinator {
             shouldSwitchToTimerTab = true
         }
 
+        #if os(macOS)
         // 发送通知
         await notificationService.sendSessionCompleteNotification(sessionType: completedSessionType)
+        #endif
 
         // 更新 Widget
         updateWidgetData()
@@ -329,7 +333,10 @@ public final class AppCoordinator {
         for (taskId, progress) in taskProgress {
             if let item = todoRepository.load().items.first(where: { $0.id == taskId }) {
                 var updated = item
+                updated.schemaVersion = FlowOSDataSchema.currentVersion
                 updated.completedPercentage = progress
+                updated.updatedAt = Date()
+                updated.sourceDevice = .current
                 if progress == 100 {
                     updated.isCompleted = true
                     updated.completedAt = Date()
@@ -387,7 +394,8 @@ public final class AppCoordinator {
                     remainingSecondsWhenPaused: remaining,
                     durationSeconds: state.durationSeconds,
                     sessionsCompletedInCycle: state.sessionsCompletedInCycle,
-                    deviceName: state.deviceName
+                    deviceName: state.deviceName,
+                    sourceDevice: state.sourceDevice
                 )
                 engine.restoreState(pausedState)
             } else {

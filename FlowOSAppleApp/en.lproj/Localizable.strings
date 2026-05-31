@@ -111,7 +111,10 @@
 "Global Toggle Shortcut" = "Global Toggle Shortcut";
 "Click to record" = "Click to record";
 "Tune the timer, language, and sync location." = "Tune the timer, language, and sync location.";
+"Tune the timer, language, and iCloud sync." = "Tune the timer, language, and iCloud sync.";
 "Change" = "Change";
+"Using the selected iCloud Drive/Files folder. Select the same folder on macOS and iOS to sync FlowOS data." = "Using the selected iCloud Drive/Files folder. Select the same folder on macOS and iOS to sync FlowOS data.";
+"Choose a folder in iCloud Drive/Files to sync with your other FlowOS apps. Until then, FlowOS uses local app data." = "Choose a folder in iCloud Drive/Files to sync with your other FlowOS apps. Until then, FlowOS uses local app data.";
 
 // MARK: - Notifications
 "Focus session complete!" = "Focus session complete!";

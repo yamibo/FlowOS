@@ -42,11 +42,11 @@ Main data files:
 
 - `v0.1`: original public macOS prototype
 - `v1.0`: polished FlowOS 1.x TodoList + Pomodoro release
+- `v1.1`: iOS companion app, shared data model refinements, UI polish, and iCloud Drive folder sync improvements
 - `2.x`: planned gamified growth system
 
 ## License
 
-FlowOS is free software licensed under the GNU General Public License v3.0 or later.
+FlowOS is open source software licensed under the MIT License.
 
 See [LICENSE](LICENSE) for details.
-

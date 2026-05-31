@@ -100,6 +100,7 @@ public struct ActiveTimerState: Codable, Equatable, Sendable {
     public var durationSeconds: Int
     public var sessionsCompletedInCycle: Int
     public var deviceName: String?
+    public var sourceDevice: DeviceInfo?
 
     public static func idle(
         sessionType: SessionType = .focus,
@@ -107,7 +108,7 @@ public struct ActiveTimerState: Codable, Equatable, Sendable {
         sessionsCompletedInCycle: Int = 0
     ) -> ActiveTimerState {
         ActiveTimerState(
-            schemaVersion: 1,
+            schemaVersion: FlowOSDataSchema.currentVersion,
             updatedAt: nil,
             timerId: nil,
             sessionType: sessionType,
@@ -118,12 +119,13 @@ public struct ActiveTimerState: Codable, Equatable, Sendable {
             remainingSecondsWhenPaused: nil,
             durationSeconds: durationSeconds,
             sessionsCompletedInCycle: sessionsCompletedInCycle,
-            deviceName: nil
+            deviceName: nil,
+            sourceDevice: .current
         )
     }
 
     public init(
-        schemaVersion: Int = 1,
+        schemaVersion: Int = FlowOSDataSchema.currentVersion,
         updatedAt: Date? = nil,
         timerId: UUID? = nil,
         sessionType: SessionType = .focus,
@@ -134,7 +136,8 @@ public struct ActiveTimerState: Codable, Equatable, Sendable {
         remainingSecondsWhenPaused: Int? = nil,
         durationSeconds: Int = 25 * 60,
         sessionsCompletedInCycle: Int = 0,
-        deviceName: String? = nil
+        deviceName: String? = nil,
+        sourceDevice: DeviceInfo? = .current
     ) {
         self.schemaVersion = schemaVersion
         self.updatedAt = updatedAt
@@ -148,6 +151,7 @@ public struct ActiveTimerState: Codable, Equatable, Sendable {
         self.durationSeconds = durationSeconds
         self.sessionsCompletedInCycle = sessionsCompletedInCycle
         self.deviceName = deviceName
+        self.sourceDevice = sourceDevice
     }
 }
 
@@ -164,12 +168,14 @@ public struct SessionRecord: Codable, Identifiable, Equatable, Sendable {
     public var completed: Bool
     public var createdAt: Date
     public var sourceDevice: String?
+    public var sourceDeviceInfo: DeviceInfo?
     public var completedTaskIds: [UUID]?  // 本次完成的任务 ID
     public var taskProgress: [UUID: Int]?  // 任务进度百分比
+    public var taskUpdates: [SessionTaskUpdate]?
 
     public init(
         id: UUID = UUID(),
-        schemaVersion: Int = 1,
+        schemaVersion: Int = FlowOSDataSchema.currentVersion,
         sessionType: SessionType,
         startedAt: Date,
         endedAt: Date,
@@ -177,8 +183,10 @@ public struct SessionRecord: Codable, Identifiable, Equatable, Sendable {
         completed: Bool = true,
         createdAt: Date = Date(),
         sourceDevice: String? = nil,
+        sourceDeviceInfo: DeviceInfo? = .current,
         completedTaskIds: [UUID]? = nil,
-        taskProgress: [UUID: Int]? = nil
+        taskProgress: [UUID: Int]? = nil,
+        taskUpdates: [SessionTaskUpdate]? = nil
     ) {
         self.id = id
         self.schemaVersion = schemaVersion
@@ -188,9 +196,57 @@ public struct SessionRecord: Codable, Identifiable, Equatable, Sendable {
         self.durationSeconds = durationSeconds
         self.completed = completed
         self.createdAt = createdAt
-        self.sourceDevice = sourceDevice
+        self.sourceDevice = sourceDevice ?? sourceDeviceInfo?.name
+        self.sourceDeviceInfo = sourceDeviceInfo
         self.completedTaskIds = completedTaskIds
         self.taskProgress = taskProgress
+        self.taskUpdates = taskUpdates ?? SessionRecord.makeTaskUpdates(from: taskProgress)
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case schemaVersion
+        case sessionType
+        case startedAt
+        case endedAt
+        case durationSeconds
+        case completed
+        case createdAt
+        case sourceDevice
+        case sourceDeviceInfo
+        case completedTaskIds
+        case taskProgress
+        case taskUpdates
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(UUID.self, forKey: .id)
+        schemaVersion = try container.decodeIfPresent(Int.self, forKey: .schemaVersion) ?? FlowOSDataSchema.legacyVersion
+        sessionType = try container.decode(SessionType.self, forKey: .sessionType)
+        startedAt = try container.decode(Date.self, forKey: .startedAt)
+        endedAt = try container.decode(Date.self, forKey: .endedAt)
+        durationSeconds = try container.decode(Int.self, forKey: .durationSeconds)
+        completed = try container.decodeIfPresent(Bool.self, forKey: .completed) ?? true
+        createdAt = try container.decodeIfPresent(Date.self, forKey: .createdAt) ?? endedAt
+        sourceDevice = try container.decodeIfPresent(String.self, forKey: .sourceDevice)
+        sourceDeviceInfo = try container.decodeIfPresent(DeviceInfo.self, forKey: .sourceDeviceInfo)
+        completedTaskIds = try container.decodeIfPresent([UUID].self, forKey: .completedTaskIds)
+        taskProgress = try container.decodeIfPresent([UUID: Int].self, forKey: .taskProgress)
+        taskUpdates = try container.decodeIfPresent([SessionTaskUpdate].self, forKey: .taskUpdates)
+            ?? SessionRecord.makeTaskUpdates(from: taskProgress)
+    }
+
+    private static func makeTaskUpdates(from progress: [UUID: Int]?) -> [SessionTaskUpdate]? {
+        guard let progress, !progress.isEmpty else { return nil }
+        return progress.map { taskId, percentage in
+            SessionTaskUpdate(
+                taskId: taskId,
+                completedPercentage: percentage,
+                completedAt: percentage >= 100 ? Date() : nil
+            )
+        }
+        .sorted { $0.taskId.uuidString < $1.taskId.uuidString }
     }
 }
 
@@ -201,21 +257,25 @@ public struct FlowSettings: Codable, Equatable, Sendable {
     public var schemaVersion: Int
     public var updatedAt: Date?
     public var timer: TimerSettings
+    public var sourceDevice: DeviceInfo?
 
     public static let `default` = FlowSettings(
-        schemaVersion: 1,
+        schemaVersion: FlowOSDataSchema.currentVersion,
         updatedAt: nil,
-        timer: .default
+        timer: .default,
+        sourceDevice: .current
     )
 
     public init(
-        schemaVersion: Int = 1,
+        schemaVersion: Int = FlowOSDataSchema.currentVersion,
         updatedAt: Date? = nil,
-        timer: TimerSettings = .default
+        timer: TimerSettings = .default,
+        sourceDevice: DeviceInfo? = .current
     ) {
         self.schemaVersion = schemaVersion
         self.updatedAt = updatedAt
         self.timer = timer
+        self.sourceDevice = sourceDevice
     }
 }
 
